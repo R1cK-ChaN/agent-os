@@ -1,0 +1,4 @@
+interface:
+  display_name: "Execute Linear Issue"
+  short_description: "Deliver private Linear tasks through GitHub safely"
+  default_prompt: "Use $execute-linear-issue to complete this private Linear issue."

@@ -1,0 +1,21 @@
+{
+  "name": "agent-os",
+  "version": "0.1.0",
+  "description": "Private issue delivery workflows for durable, cross-device software development.",
+  "author": {
+    "name": "Agent OS"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent OS",
+    "shortDescription": "Deliver private tasks through GitHub safely.",
+    "longDescription": "Use private Linear issues as task entry points, implement through GitHub without leaking private task metadata, and write merged delivery evidence back to Linear.",
+    "developerName": "Agent OS",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "Complete this private Linear issue through its linked GitHub repository.",
+      "Resume this private task from its latest GitHub checkpoint."
+    ]
+  }
+}
