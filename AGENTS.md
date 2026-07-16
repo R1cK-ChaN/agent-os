@@ -18,6 +18,7 @@ This repository distributes a private, installable Agent OS workflow. It contain
 - Use scope-first imperative commit and pull-request titles.
 - Use `gh` as the primary GitHub interface.
 - Never commit credentials, OAuth state, environment files, or invented connector identifiers.
+- Keep ordinary staging integration enabled and fast. Add release gates only for a concrete risk, an existing repository requirement, or an explicit user request.
 
 ## Verification
 
@@ -25,8 +26,8 @@ Run all checks before committing:
 
 ```bash
 python3 scripts/verify_architecture.py
-python3 /home/rick/.codex/skills/.system/skill-creator/scripts/quick_validate.py plugins/agent-os/skills/execute-linear-issue
-python3 /home/rick/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/agent-os
 ```
+
+When the creator skills are available, also run their official Skill and Plugin validators from the discovered skill locations. Do not hardcode a user-home path into portable repository automation.
 
 Run `codex exec review --uncommitted` before the implementation commit and fix only material findings. Update this map and `docs/architecture.md` when directory responsibilities, workflow boundaries, or external-system ownership changes.

@@ -18,11 +18,12 @@ Use the narrowest authority needed for the current phase.
 - Open or update a draft pull request
 - Attach GitHub links and verification evidence to the originating Linear issue
 - Move the Linear issue through ordinary in-progress or review states
+- Use an established staging deploy and smoke path when the approved repository workflow treats it as normal integration validation
 
 ## Require explicit authority
 
 - Merge a pull request unless the user or repository workflow already granted merge authority
-- Deploy or expose behavior to production users
+- Deploy to production or expose behavior to production users unless an established approved release workflow already grants that authority
 - Apply a production migration or destructive data operation
 - Rotate or reveal credentials
 - Change IAM, RLS, access-control, billing, or external provider resources
@@ -30,4 +31,4 @@ Use the narrowest authority needed for the current phase.
 - Send messages to external people
 - Expand work beyond the approved issue scope
 
-Treat deployment and user exposure as separate decisions. Preserve backward compatibility and a rollback or disable path for production-impacting changes.
+Treat deployment and user exposure as separate decisions. Do not add an approval step merely because an isolated staging environment runs the enabled path. Preserve backward compatibility and a rollback or disable path for production-impacting changes.

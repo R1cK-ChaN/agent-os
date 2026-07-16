@@ -34,8 +34,9 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 5. Implement Red-Green-Refactor-Verify slices.
 6. Review, commit, push, and open a GitHub pull request with scope-first naming.
 7. Wait for required checks and merge authority.
-8. Observe the merge, then write the merged PR, commit, verification, risk, and follow-up to Linear.
-9. Mark the Linear issue complete only after durable evidence is saved.
+8. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
+9. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
+10. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
 ## Recovery protocol
 
@@ -50,8 +51,13 @@ plugins/agent-os/skills/execute-linear-issue/     End-to-end orchestration skill
   agents/openai.yaml                              Skill discovery metadata
   references/authority-policy.md                  Approval and safety boundary
   references/completion-checkpoint.md             Post-merge Linear evidence
+  references/database-change.md                   Conditional compatibility policy
+  references/engineering-quality.md               TDD, abstraction, and review policy
   references/github-privacy.md                    One-way privacy contract
   references/implementation-lifecycle.md          GitHub delivery protocol
+  references/issue-contract.md                    Scope authority and projection
+  references/living-map.md                        Code and documentation synchronization
+  references/release-safety.md                    Fast staging and production exposure
 scripts/verify_architecture.py                    Deterministic architecture checks
 ```
 

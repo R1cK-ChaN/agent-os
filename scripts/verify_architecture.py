@@ -22,8 +22,13 @@ REQUIRED_FILES = (
     SKILL / "agents" / "openai.yaml",
     SKILL / "references" / "authority-policy.md",
     SKILL / "references" / "completion-checkpoint.md",
+    SKILL / "references" / "database-change.md",
+    SKILL / "references" / "engineering-quality.md",
     SKILL / "references" / "github-privacy.md",
     SKILL / "references" / "implementation-lifecycle.md",
+    SKILL / "references" / "issue-contract.md",
+    SKILL / "references" / "living-map.md",
+    SKILL / "references" / "release-safety.md",
 )
 
 
@@ -60,6 +65,44 @@ def main() -> int:
         for unsupported in ("apps", "mcpServers", "hooks"):
             if unsupported in manifest:
                 fail(f"plugin manifest must not declare absent {unsupported}", failures)
+
+    policy_requirements = {
+        SKILL / "references" / "engineering-quality.md": (
+            "not a hard rule",
+            "stop before committing",
+        ),
+        SKILL / "references" / "release-safety.md": (
+            "Staging is the default enabled integration environment",
+            "Do not add a feature flag",
+            "A normal staging validation does not require production rollout machinery",
+        ),
+        SKILL / "references" / "issue-contract.md": (
+            "Linear is the private scope authority",
+            "GitHub issue is a privacy-safe implementation projection",
+            "amend the Linear issue before implementation",
+        ),
+        SKILL / "SKILL.md": (
+            "smallest representative staging smoke",
+            "Do not invent a new gate",
+        ),
+    }
+    for path, required_phrases in policy_requirements.items():
+        if not path.is_file():
+            continue
+        content = path.read_text()
+        for phrase in required_phrases:
+            if phrase not in content:
+                fail(f"{path.relative_to(ROOT)} must contain: {phrase}", failures)
+
+    skill_path = SKILL / "SKILL.md"
+    if skill_path.is_file():
+        skill_content = skill_path.read_text()
+        implementation_marker = "implement one small slice"
+        for policy_marker in ("[living-map.md]", "[release-safety.md]", "[database-change.md]"):
+            if skill_content.find(policy_marker) > skill_content.find(implementation_marker):
+                fail(f"SKILL.md must load {policy_marker} before implementation", failures)
+        if "pre-authorized by the repository workflow or explicitly approved" not in skill_content:
+            fail("SKILL.md must constrain staging deployment authority", failures)
 
     text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     placeholder = re.compile(r"\[TODO:|\bTODO\b")

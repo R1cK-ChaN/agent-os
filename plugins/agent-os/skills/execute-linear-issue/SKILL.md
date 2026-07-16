@@ -11,7 +11,7 @@ Treat Linear as the private task ledger and GitHub as the implementation surface
 
 Require an authorized Linear tool, GitHub access through `gh`, and a writable checkout. Report a missing dependency instead of inventing issue, repository, branch, test, or merge state.
 
-Read the complete Linear issue before changing external state. Treat its approved scope and acceptance criteria as the task boundary.
+Read the complete Linear issue before changing external state. Read [issue-contract.md](references/issue-contract.md) to classify the task and resolve authority between the private scope, target repository, and GitHub projection.
 
 ## Workflow
 
@@ -19,12 +19,15 @@ Read the complete Linear issue before changing external state. Treat its approve
 2. Resolve the target GitHub repository from an explicit issue link, project resource, existing pull request, or durable project mapping. If ambiguous, ask once and save the confirmed repository link back to Linear.
 3. Read the repository root and applicable nested `AGENTS.md` files, file contracts, specifications, tests, fixtures, scripts, and smoke paths.
 4. Read [github-privacy.md](references/github-privacy.md) before creating or editing any GitHub artifact.
-5. Require one GitHub issue for non-trivial implementation unless the target repository explicitly forbids GitHub issues and defines its own branch convention. Reuse a linked GitHub issue when present. Otherwise draft it without private Linear metadata, obtain required approval, create it, and attach its URL only on the Linear side. If issues are forbidden and no alternative branch convention exists, stop and ask instead of inventing one.
-6. Read [implementation-lifecycle.md](references/implementation-lifecycle.md), then create one issue-scoped branch and implement one small Red-Green-Refactor-Verify slice.
-7. Run repository verification and Codex review. Fix only material correctness, invariant, security, data-loss, and concrete edge-case findings. Run no more than two review rounds before a commit.
-8. Commit with a scope-first imperative subject, push the branch, and create a pull request whose title summarizes the delivered behavior. Link only the applicable GitHub issue from the pull request.
-9. Read [authority-policy.md](references/authority-policy.md) before merge, deployment, production exposure, destructive actions, or external communication. Never infer merge or production authorization.
-10. Observe the merged pull request before marking the Linear issue complete. Then read [completion-checkpoint.md](references/completion-checkpoint.md), attach the merged pull request on Linear, record delivery evidence, and move the task to its completed state.
+5. For non-trivial implementation, require one privacy-safe GitHub issue unless the target repository explicitly forbids issues and defines its own branch convention. Follow the projection and approval rules in `issue-contract.md`, then attach the GitHub URL only on the Linear side.
+6. Read [implementation-lifecycle.md](references/implementation-lifecycle.md) and [engineering-quality.md](references/engineering-quality.md), then define the next small slice.
+7. Before implementing that slice, load every applicable conditional policy: read [living-map.md](references/living-map.md) for behavior, interface, persistence, provider, module-responsibility, data-flow, or directory-shape changes; read [release-safety.md](references/release-safety.md) for deployment, production-user, release-control, environment-specific, or externally visible changes; and read [database-change.md](references/database-change.md) for durable schema, persistence, public API, or multi-version configuration changes. Keep ordinary staging validation fast and enabled.
+8. Create one issue-scoped branch and implement one small slice.
+9. Run repository verification and Codex review according to `engineering-quality.md`. Do not commit unresolved material findings merely because the review-round limit was reached.
+10. Commit with a scope-first imperative subject, push the branch, update the GitHub issue, and create a pull request whose title summarizes the delivered behavior. Link only the applicable GitHub issue from the pull request.
+11. Read [authority-policy.md](references/authority-policy.md) before merge, production deployment or exposure, destructive actions, or external communication. Never infer production exposure from staging success.
+12. Observe the merged pull request before marking the Linear issue complete. For runtime-affecting changes in a repository with an established staging environment, follow `release-safety.md`. When staging deployment is pre-authorized by the repository workflow or explicitly approved, deploy the enabled path and run the smallest representative staging smoke. If it is not pre-authorized, request approval only when the repository or approved issue actually requires staging validation; otherwise record that it was skipped. Do not invent a new gate, production-scale rehearsal, or unrelated proof when the established smoke is sufficient.
+13. Read [completion-checkpoint.md](references/completion-checkpoint.md), attach the merged pull request on Linear, record the merge plus any required staging evidence, and move the task to its completed state. Do not block completion on unrelated or optional staging proof.
 
 ## Resume interrupted work
 

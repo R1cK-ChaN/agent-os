@@ -20,7 +20,7 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 3. **Branch:** Create one branch for the GitHub issue. Keep all slices for that issue on the same branch.
 4. **Red:** Add the smallest failing test or deterministic check that proves the gap.
 5. **Green:** Implement the smallest behavior that passes.
-6. **Refactor:** Remove duplication and avoid abstractions without three concrete uses.
+6. **Refactor:** Remove duplication and apply the evidence-based abstraction guidance in `engineering-quality.md`.
 7. **Verify:** Run relevant tests, exercise the path, inspect the diff, and run Codex review.
 8. **Persist:** Commit, push, and create or update the pull request.
 9. **Merge:** Wait for explicit authority and required checks. Do not equate a staging deploy with production exposure.
@@ -28,4 +28,4 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 
 ## Pull request content
 
-Include the shipped behavior, verification, risk, documentation impact, rollout or exposure plan when applicable, and rollback path. Use GitHub-native references for GitHub issues. Do not mention the originating Linear task.
+Include the shipped behavior, verification, risk, documentation impact, rollout or exposure plan when applicable, and rollback path. Use `Closes #<github-number>` for the owning GitHub issue when merge should close it. Do not mention the originating Linear task.
