@@ -1,6 +1,6 @@
 # Sidecar bootstrap contract
 
-Agent OS bootstrap copies reusable Skills from the public Agent OS repository into the user's Codex Skill directory. It stores no installation ledger, remote URL, credential, or recovery handoff. The target repository is read-only until the user begins an approved implementation task.
+Agent OS bootstrap copies reusable Skills from the intentionally public Agent OS distribution repository into the user's Codex Skill directory. It stores no installation ledger, remote URL, credential, or recovery handoff. The target repository is read-only until the user begins an approved implementation task.
 
 ## Trust boundary
 
@@ -11,6 +11,8 @@ Agent OS bootstrap copies reusable Skills from the public Agent OS repository in
 ## Prohibited bootstrap effects
 
 Bootstrap must not add project files, change `AGENTS.md`, `.gitignore`, `.codex`, `.agents`, Git configuration, hooks, branch, HEAD, index, working-tree status, or existing untracked files. User Skills belong under `$HOME/.agents/skills` or an explicitly supplied external Skill root.
+
+Canonical isolation covers the target worktree, its worktree-specific Git directory, and its shared Git common directory. Failures before the final Git snapshot roll back the Skill transaction. After that snapshot passes, cleanup failure may retain a temporary backup and report a warning but must not trigger a second rollback.
 
 ## Recovery output
 
