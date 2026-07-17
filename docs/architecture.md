@@ -85,7 +85,7 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   agents/openai.yaml                              Skill discovery metadata
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
-scripts/agent-os.mjs                              External bootstrap, doctor, status, and uninstall CLI
+scripts/agent-os.mjs                              External bootstrap and read-only doctor CLI
 scripts/test_bootstrap.mjs                         Deterministic zero-pollution and lifecycle checks
 scripts/verify_privacy.py                          Private metadata and credential-artifact scan
 docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
@@ -96,7 +96,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 ## Installation model
 
-The private Git repository is the distribution source. Users may install the Plugin through its marketplace or run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
+The private Git repository is the distribution source. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 
