@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -27,14 +28,36 @@ SECRET_MARKERS = (
 )
 
 
+def indexed_paths() -> list[Path]:
+    """Return tracked files plus staged additions and modifications."""
+    paths: set[Path] = set()
+    commands = (
+        ("ls-files", "-z"),
+        ("diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"),
+    )
+    for arguments in commands:
+        result = subprocess.run(
+            ("git", *arguments),
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+        )
+        paths.update(
+            Path(value.decode(errors="surrogateescape"))
+            for value in result.stdout.split(b"\0")
+            if value
+        )
+    return sorted(paths)
+
+
 def main() -> int:
     failures: list[str] = []
-    for path in ROOT.rglob("*"):
-        if not path.is_file() or ".git" in path.parts:
-            continue
-        relative = path.relative_to(ROOT)
+    for relative in indexed_paths():
+        path = ROOT / relative
         if path.name in FORBIDDEN_CREDENTIAL_FILES:
             failures.append(f"credential artifact is tracked: {relative}")
+            continue
+        if not path.is_file() or path.is_symlink():
             continue
         if path.resolve() == Path(__file__).resolve():
             continue
