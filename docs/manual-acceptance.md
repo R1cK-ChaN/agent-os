@@ -2,6 +2,14 @@
 
 Use this checklist before a Plugin release or after changing a workflow boundary. Run it against a disposable repository or a real project where the requested actions are already authorized. Do not use production credentials or data.
 
+## Sidecar bootstrap
+
+- Run `node scripts/test_bootstrap.mjs` and confirm it passes.
+- Bootstrap against both a clean disposable repository and one with staged, modified, and untracked state.
+- Confirm HEAD, branch, index, worktree status, local Git configuration, hooks, and existing dirty state are unchanged.
+- Confirm Agent OS Skills, installation locks, and handoffs exist only in user-level or `AGENT_OS_HOME` locations.
+- Start a new task and confirm `prepare-development-workspace` treats the handoff as a locator and independently verifies durable state.
+
 ## Workspace recovery
 
 - Start in a fresh or replaced environment with a remote branch or pull request.
