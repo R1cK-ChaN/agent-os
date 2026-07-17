@@ -48,6 +48,8 @@ REQUIRED_FILES = (
     CHECKPOINT_SKILL / "agents" / "openai.yaml",
     CHECKPOINT_SKILL / "references" / "checkpoint-consistency.md",
     CHECKPOINT_SKILL / "references" / "checkpoint-record.md",
+    WORKSPACE_SKILL / "references" / "workspace-security.md",
+    SKILL / "references" / "verification-strategy.md",
 )
 
 
@@ -162,6 +164,21 @@ def main() -> int:
             "Next step",
             "Blocker",
         ),
+        WORKSPACE_SKILL / "references" / "workspace-security.md": (
+            "command output, comments, logs, fixtures, or snapshots",
+            "OAuth state",
+            "cloud-side secret references",
+            "test, staging, and production credentials",
+        ),
+        SKILL / "references" / "verification-strategy.md": (
+            "targeted static check",
+            "targeted test",
+            "affected module",
+            "integration or smoke",
+            "full suite",
+            "staging",
+            "residual risk",
+        ),
         DESIGN_SKILL / "references" / "domain-modeling.md": (
             "bounded context",
             "invariants",
@@ -209,6 +226,23 @@ def main() -> int:
         checkpoint_marker = normalized_skill.find("checkpoint-development-work")
         if checkpoint_marker == -1 or implementation_position == -1 or checkpoint_marker > implementation_position:
             fail("SKILL.md must route phase-boundary checkpointing before implementation", failures)
+        verification_marker = normalized_skill.find("[verification-strategy.md]")
+        if verification_marker == -1 or implementation_position == -1 or verification_marker > implementation_position:
+            fail("SKILL.md must load risk-scaled verification before implementation", failures)
+
+    workspace_skill_path = WORKSPACE_SKILL / "SKILL.md"
+    if workspace_skill_path.is_file():
+        workspace_content = workspace_skill_path.read_text().lower()
+        security_position = workspace_content.find("[workspace-security.md]")
+        probe_position = workspace_content.find("then probe")
+        if security_position == -1 or probe_position == -1 or security_position > probe_position:
+            fail("workspace preparation must load secret safety before probing capabilities", failures)
+
+    design_skill_path = DESIGN_SKILL / "SKILL.md"
+    if design_skill_path.is_file():
+        design_content = design_skill_path.read_text().lower()
+        if "workspace-security.md" not in design_content or "verification-strategy.md" not in design_content:
+            fail("design workflow must route security and verification when applicable", failures)
 
     text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     placeholder = re.compile(r"\[TODO:|\bTODO\b")
