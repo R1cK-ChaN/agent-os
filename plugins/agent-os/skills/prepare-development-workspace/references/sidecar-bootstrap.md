@@ -12,7 +12,7 @@ Agent OS bootstrap copies reusable Skills from the intentionally public Agent OS
 
 Bootstrap must not add project files, change `AGENTS.md`, `.gitignore`, `.codex`, `.agents`, Git configuration, hooks, branch, HEAD, index, working-tree status, or existing untracked files. User Skills belong under `$HOME/.agents/skills` or an explicitly supplied external Skill root.
 
-Canonical isolation covers the target worktree, its worktree-specific Git directory, and its shared Git common directory. Failures before the final Git snapshot roll back the Skill transaction. After that snapshot passes, cleanup failure may retain a temporary backup and report a warning but must not trigger a second rollback.
+Canonical isolation covers the target worktree, its worktree-specific Git directory, its shared Git common directory, and the effective Hooks directory resolved by Git, including an external `core.hooksPath`. Failures before the final Git snapshot roll back the Skill transaction. After that snapshot passes, cleanup failure may retain a temporary backup and report a warning but must not trigger a second rollback.
 
 ## Recovery output
 
