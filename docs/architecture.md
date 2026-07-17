@@ -43,9 +43,9 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 ## Sidecar bootstrap
 
-Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, stores locks and handoffs under `AGENT_OS_HOME`, and compares target HEAD, branch, index, worktree status, local Git configuration, and hooks before and after activation. Bootstrap fails on any target mutation. It never adds project files, configuration, hooks, submodules, ignore rules, or state.
+Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, resolves canonical paths to reject symlink escapes, and compares target HEAD, branch, index, worktree status, local Git configuration, and hooks before and after activation. Bootstrap fails on target mutation and rolls back the current Skill transaction. It never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
 
-The deterministic CLI cannot invoke ChatGPT connectors. Its handoff is an ephemeral locator consumed in a new task by `prepare-development-workspace`, which independently verifies GitHub, Linear, and other durable state. The handoff is never project truth.
+The public Git repository is the acquisition source. After activation, a new task runs `prepare-development-workspace` with the target repository and optional task identifier, then independently verifies GitHub, Linear, and other durable state. Successful activation is not proof of project readiness.
 
 ## Recovery protocol
 
@@ -96,7 +96,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 ## Installation model
 
-The private Git repository is the distribution source. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
+The public Git repository is the distribution source. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 
