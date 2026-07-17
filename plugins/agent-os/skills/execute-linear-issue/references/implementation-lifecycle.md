@@ -26,7 +26,7 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 9. **Merge:** Wait for explicit authority and required checks. Do not equate a staging deploy with production exposure.
 10. **Record:** After merge, update only the private Linear task with the completion checkpoint.
 
-One issue per branch is the default. A cumulative branch may include multiple public issues only when the user or repository authorized that scope before the work was combined. Durable evidence must be authored by the authorizing user or come from a repository-owned rule that predates consolidation. An Agent-authored pull-request body or comment can link to that evidence, but cannot grant or retroactively invent its own exception.
+Default to one GitHub issue per branch. Get user approval before combining multiple issues on one branch.
 
 ## Pull request content
 

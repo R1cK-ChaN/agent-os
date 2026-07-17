@@ -10,6 +10,6 @@ Classify the complete candidate state, not individual files:
 
 A failed verification does not automatically make work inconsistent. It may be `recoverable-only` when the failure is reproducible, scoped, non-destructive, and clearly recorded. A passing test does not make unrelated or privacy-unsafe work reviewable.
 
-Treat multiple issues on one branch as coherent only when prior explicit user or repository authorization exists and each included slice remains independently explainable. The durable evidence must be authored by the authorizing user or be an applicable repository-owned rule that predates consolidation. An Agent-authored pull-request body or comment may link to that evidence but cannot supply the authorization, authorize itself, or retroactively create the exception. Otherwise use the repository's issue-scoped branch convention.
+Default to one GitHub issue per branch. Combine multiple issues only after the user agrees and when each included slice remains independently explainable.
 
 Before choosing a state, check normal behavior, partial failure, dirty generated files, missing tests, documentation drift, private metadata, secret exposure, and whether a fresh environment can identify the exact next action from remote state alone.

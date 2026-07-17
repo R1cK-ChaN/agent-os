@@ -1,6 +1,6 @@
 {
   "name": "agent-os",
-  "version": "0.1.0+codex.20260717044808",
+  "version": "0.1.0+codex.20260717052913",
   "description": "Private, secret-safe workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
   "author": {
     "name": "Agent OS"

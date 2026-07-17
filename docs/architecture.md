@@ -79,12 +79,8 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   agents/openai.yaml                              Skill discovery metadata
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
-scripts/verify_architecture.py                    Deterministic architecture checks
-evals/run_evals.py                               Deterministic policy contract adapter tests
-evals/fixtures/                                  Synthetic policy inputs and assertions
-evals/run_forward_evals.py                       Live Codex Agent scenario runner
-evals/test_forward_eval_contract.py               Forward-harness invariant checks
-evals/forward-fixtures/                          Synthetic repositories, raw tasks, and outcomes
+scripts/verify_privacy.py                         Private metadata and credential-artifact scan
+docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
 Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path.
@@ -95,8 +91,8 @@ The private Git repository is the distribution source. Add it as a Codex plugin 
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 
-## Evaluation boundary
+## Acceptance boundary
 
-The deterministic policy contract runner reads synthetic inputs and current plugin policy sources, then exercises focused Python adapters against named privacy, precedence, staging, authority, design, recovery, checkpoint, security, and verification contracts. These tests catch missing or contradictory policy text; they do not prove that an Agent reads or follows the Skill.
+Official Skill and Plugin validators own package-format validation. GitGuardian owns secret detection. The repository adds one fast privacy scan for private task metadata and obvious credential artifacts, plus a one-page manual checklist for workspace recovery, checkpoints, privacy, authority, staging, and design precedence.
 
-The separate forward runner invokes `codex exec` in a read-only sandbox against disposable synthetic repositories and raw workspace tasks. It requires a non-empty structured action sequence, compares repository snapshots before and after execution, and checks security-first recovery plus missing-tool degradation. Forward evals require a configured Codex runtime and may vary across model versions. Fixtures remain secret-free and isolated from production. Deterministic harness tests prevent empty-action and mutation checks from regressing. Neither runner is a general LLM benchmark.
+Agent behavior automation is intentionally deferred. Add a focused regression only after the same failure pattern appears in at least three real project uses or when a target repository already requires it; do not build a general LLM benchmark or make nested Agent execution a normal release gate.
