@@ -10,12 +10,13 @@ Produce a bounded, evidence-based Workspace Readiness result. Discover the targe
 ## Workflow
 
 1. Resolve the durable recovery chain: task or explicit request, repository, default branch, linked pull request, remote branch, and latest durable commit. Prefer remote Git and pull-request state over stale local state or chat history.
-2. Read the root and applicable nested `AGENTS.md` files, file contract headers, runtime and package-manager declarations, lockfiles, specifications, scripts, tests, fixtures, CI workflows, and smoke documentation.
-3. Read [capability-discovery.md](references/capability-discovery.md), then probe only the capabilities needed for the next approved slice. Prefer read-only, low-cost checks and repository-provided commands.
-4. Classify each required capability as available, unavailable, requires authorization, or unknown. Cite concrete evidence; never infer success from a file name, tool description, or previous environment.
-5. Check secret and service prerequisites by reference or presence only. Never read or print secret values, dump the environment, copy production credentials, or claim authorization that was not observed.
-6. Read [workspace-readiness.md](references/workspace-readiness.md) and return one concise Workspace Readiness result with the recovery entry point, evidence, blockers, and next safe action.
-7. Stop at the readiness boundary. Ask for authorization only when the next required action needs it.
+2. Read [workspace-security.md](references/workspace-security.md) before reading repository artifacts or inspecting secret references, logs, fixtures, credentials, cloud tools, or external services.
+3. Read the root and applicable nested `AGENTS.md` files, file contract headers, runtime and package-manager declarations, lockfiles, specifications, scripts, tests, fixtures, CI workflows, and smoke documentation under that safety boundary.
+4. Read [capability-discovery.md](references/capability-discovery.md), then probe only the capabilities needed for the next approved slice. Prefer read-only, low-cost checks and repository-provided commands.
+5. Classify each required capability as available, unavailable, requires authorization, or unknown. Cite concrete evidence; never infer success from a file name, tool description, or previous environment.
+6. Check secret and service prerequisites by reference or presence only. Never read or print secret values, dump the environment, copy production credentials, or claim authorization that was not observed.
+7. Read [workspace-readiness.md](references/workspace-readiness.md) and return one concise Workspace Readiness result with the recovery entry point, evidence, blockers, and next safe action.
+8. Stop at the readiness boundary. Ask for authorization only when the next required action needs it.
 
 ## Boundaries
 

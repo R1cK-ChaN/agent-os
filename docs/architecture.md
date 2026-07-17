@@ -30,10 +30,10 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 1. Start from a Linear issue.
 2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
-3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and declarations, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
+3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and declarations, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
 4. Create an issue-scoped GitHub branch without private task metadata.
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch.
-6. Implement Red-Green-Refactor-Verify slices.
+6. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
 7. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
 8. Review, commit, push, and open a GitHub pull request with scope-first naming.
 9. Wait for required checks and merge authority.
@@ -61,6 +61,7 @@ plugins/agent-os/skills/execute-linear-issue/     End-to-end orchestration skill
   references/issue-contract.md                    Scope authority and projection
   references/living-map.md                        Code and documentation synchronization
   references/release-safety.md                    Fast staging and production exposure
+  references/verification-strategy.md             Risk-scaled verification ladder
 plugins/agent-os/skills/design-software-change/   Cross-project software design skill
   agents/openai.yaml                              Skill discovery metadata
   references/design-precedence.md                 Plugin method and project-truth boundary
@@ -73,6 +74,7 @@ plugins/agent-os/skills/prepare-development-workspace/ Evidence-based workspace 
   agents/openai.yaml                              Skill discovery metadata
   references/capability-discovery.md              Runtime, command, tool, and service evidence
   references/workspace-readiness.md               Concise readiness result contract
+  references/workspace-security.md                VM secret, logging, and credential isolation
 plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   agents/openai.yaml                              Skill discovery metadata
   references/checkpoint-consistency.md            Reviewable and recoverable state rules

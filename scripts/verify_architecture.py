@@ -234,9 +234,16 @@ def main() -> int:
     if workspace_skill_path.is_file():
         workspace_content = workspace_skill_path.read_text().lower()
         security_position = workspace_content.find("[workspace-security.md]")
+        artifact_position = workspace_content.find("read the root")
         probe_position = workspace_content.find("then probe")
-        if security_position == -1 or probe_position == -1 or security_position > probe_position:
-            fail("workspace preparation must load secret safety before probing capabilities", failures)
+        if (
+            security_position == -1
+            or artifact_position == -1
+            or probe_position == -1
+            or security_position > artifact_position
+            or security_position > probe_position
+        ):
+            fail("workspace preparation must load secret safety before reading artifacts or probing capabilities", failures)
 
     design_skill_path = DESIGN_SKILL / "SKILL.md"
     if design_skill_path.is_file():

@@ -1,7 +1,7 @@
 {
   "name": "agent-os",
-  "version": "0.1.0+codex.20260717015222",
-  "description": "Private workspace recovery, checkpointing, software design, and delivery workflows for durable cross-device development.",
+  "version": "0.1.0+codex.20260717015846",
+  "description": "Private, secret-safe workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
   "author": {
     "name": "Agent OS"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Agent OS",
     "shortDescription": "Design and deliver private software tasks safely.",
-    "longDescription": "Recover evidence-based workspace readiness from durable remote state, persist coherent checkpoints across replaceable environments, use private tasks as delivery entry points, design from repository-owned facts, and implement through GitHub without leaking private metadata.",
+    "longDescription": "Recover secret-safe workspace readiness from durable remote state, persist coherent checkpoints across replaceable environments, design from repository-owned facts, and scale verification with demonstrated risk without leaking private metadata or slowing ordinary staging.",
     "developerName": "Agent OS",
     "category": "Productivity",
     "capabilities": [
@@ -21,6 +21,7 @@
       "Resume this private task from its latest GitHub checkpoint.",
       "Assess this fresh development workspace and identify its safe recovery entry point.",
       "Checkpoint this coherent development phase before the environment is replaced.",
+      "Choose the smallest sufficient verification for this change without exposing workspace secrets.",
       "Design this software change before implementation using repository-owned project facts."
     ]
   }
