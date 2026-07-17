@@ -14,6 +14,7 @@ PLUGIN = ROOT / "plugins" / "agent-os"
 SKILL = PLUGIN / "skills" / "execute-linear-issue"
 DESIGN_SKILL = PLUGIN / "skills" / "design-software-change"
 WORKSPACE_SKILL = PLUGIN / "skills" / "prepare-development-workspace"
+CHECKPOINT_SKILL = PLUGIN / "skills" / "checkpoint-development-work"
 
 REQUIRED_FILES = (
     ROOT / ".agents" / "plugins" / "marketplace.json",
@@ -43,6 +44,10 @@ REQUIRED_FILES = (
     WORKSPACE_SKILL / "agents" / "openai.yaml",
     WORKSPACE_SKILL / "references" / "capability-discovery.md",
     WORKSPACE_SKILL / "references" / "workspace-readiness.md",
+    CHECKPOINT_SKILL / "SKILL.md",
+    CHECKPOINT_SKILL / "agents" / "openai.yaml",
+    CHECKPOINT_SKILL / "references" / "checkpoint-consistency.md",
+    CHECKPOINT_SKILL / "references" / "checkpoint-record.md",
 )
 
 
@@ -137,6 +142,26 @@ def main() -> int:
             "Blockers",
             "Next entry point",
         ),
+        CHECKPOINT_SKILL / "SKILL.md": (
+            "after a coherent phase",
+            "before pausing or switching environments",
+            "before an external wait",
+            "before long-running work",
+            "github-privacy.md",
+        ),
+        CHECKPOINT_SKILL / "references" / "checkpoint-consistency.md": (
+            "reviewable",
+            "recoverable-only",
+            "uncheckpointable",
+            "failed verification",
+        ),
+        CHECKPOINT_SKILL / "references" / "checkpoint-record.md": (
+            "Commit",
+            "Verification",
+            "Completed phase",
+            "Next step",
+            "Blocker",
+        ),
         DESIGN_SKILL / "references" / "domain-modeling.md": (
             "bounded context",
             "invariants",
@@ -181,6 +206,9 @@ def main() -> int:
         resume_position = normalized_skill.find("## resume interrupted work")
         if resume_position == -1 or "prepare-development-workspace" not in normalized_skill[resume_position:]:
             fail("SKILL.md must route interrupted recovery through workspace preparation", failures)
+        checkpoint_marker = normalized_skill.find("checkpoint-development-work")
+        if checkpoint_marker == -1 or implementation_position == -1 or checkpoint_marker > implementation_position:
+            fail("SKILL.md must route phase-boundary checkpointing before implementation", failures)
 
     text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     placeholder = re.compile(r"\[TODO:|\bTODO\b")
