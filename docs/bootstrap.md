@@ -22,7 +22,7 @@ Verify durable GitHub and task state, report missing authorization, and identify
 
 ## Contract
 
-Bootstrap writes only to the user Skill directory. It snapshots the target repository before activation and again after every write, failing and rolling back installed Skill changes if HEAD, branch, index, working-tree status, shared or worktree-local Git configuration, or hooks change. Existing dirty state is preserved exactly. For linked worktrees, both the worktree Git directory and shared common Git directory are protected.
+Bootstrap writes only to the user Skill directory. It snapshots the target repository before activation and again after every write, failing and rolling back installed Skill changes if HEAD, branch, index, working-tree status, shared or worktree-local Git configuration, or the effective Hooks directory changes. Existing dirty state is preserved exactly. For linked worktrees, both the worktree Git directory and shared common Git directory are protected. Hooks protection follows `git rev-parse --git-path hooks`, including an external `core.hooksPath`.
 
 The Skill transaction commits after the final repository snapshot passes. Temporary-backup cleanup happens afterward; a cleanup failure retains the backup and returns a warning, but never deletes the newly activated Skills or attempts an unsafe second rollback.
 
@@ -36,7 +36,7 @@ node scripts/agent-os.mjs bootstrap --target /absolute/project/path --check-only
 node scripts/agent-os.mjs doctor --target /absolute/project/path
 ```
 
-Use `--skills-home` only for an external user Skill directory. Bootstrap resolves symlinks and refuses any Skill root that lands inside the target worktree, its worktree-specific Git directory, or its shared common Git directory.
+Use `--skills-home` only for an external user Skill directory. Bootstrap resolves symlinks and refuses any Skill root that lands inside the target worktree, its worktree-specific Git directory, its shared common Git directory, or its effective Hooks directory.
 
 ## Idempotency and updates
 
