@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -46,6 +46,7 @@ const result = JSON.parse(output("node", [CLI, "bootstrap", "--target", project,
 const after = await snapshot();
 assert.equal(result.ok, true);
 assert.equal(result.projectMutationCheck.passed, true);
+assert.equal(result.cleanup.passed, true);
 assert.deepEqual(after, before, "bootstrap must preserve the exact dirty repository state");
 assert.ok(result.skills.every((skill) => ["install", "skip", "update"].includes(skill.action)));
 
@@ -58,6 +59,15 @@ const escaped = execute("node", [CLI, "bootstrap", "--target", project, "--skill
 assert.notEqual(escaped.status, 0);
 assert.match(escaped.stderr, /must resolve outside the target repository/);
 assert.deepEqual(await snapshot(), before, "a rejected symlink escape must not change the repository");
+
+const linkedWorktree = join(sandbox, "linked-worktree");
+output("git", ["worktree", "add", "-qb", "linked-fixture", linkedWorktree], project);
+const commonGitEntriesBefore = (await readdir(join(project, ".git"))).sort();
+const linkedEscape = execute("node", [CLI, "bootstrap", "--target", linkedWorktree, "--skills-home", join(project, ".git")], ROOT, { ...process.env, HOME: home }, true);
+assert.notEqual(linkedEscape.status, 0);
+assert.match(linkedEscape.stderr, /must resolve outside the target repository/);
+assert.deepEqual((await readdir(join(project, ".git"))).sort(), commonGitEntriesBefore, "a linked worktree must not write Skills into the shared Git directory");
+assert.ok(!(await readdir(join(project, ".git"))).some((entry) => entry.startsWith("agent-os-")));
 
 const unmanaged = join(sandbox, "unmanaged-skills");
 await mkdir(join(unmanaged, "agent-os-prepare-development-workspace"), { recursive: true });
