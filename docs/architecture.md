@@ -41,6 +41,12 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 11. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
 12. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
+## Sidecar bootstrap
+
+Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, stores locks and handoffs under `AGENT_OS_HOME`, and compares target HEAD, branch, index, worktree status, local Git configuration, and hooks before and after activation. Bootstrap fails on any target mutation. It never adds project files, configuration, hooks, submodules, ignore rules, or state.
+
+The deterministic CLI cannot invoke ChatGPT connectors. Its handoff is an ephemeral locator consumed in a new task by `prepare-development-workspace`, which independently verifies GitHub, Linear, and other durable state. The handoff is never project truth.
+
 ## Recovery protocol
 
 A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
@@ -79,7 +85,10 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   agents/openai.yaml                              Skill discovery metadata
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
-scripts/verify_privacy.py                         Private metadata and credential-artifact scan
+scripts/agent-os.mjs                              External bootstrap, doctor, status, and uninstall CLI
+scripts/test_bootstrap.mjs                         Deterministic zero-pollution and lifecycle checks
+scripts/verify_privacy.py                          Private metadata and credential-artifact scan
+docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
@@ -87,7 +96,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 ## Installation model
 
-The private Git repository is the distribution source. Add it as a Codex plugin marketplace, install `agent-os`, authorize the required external systems separately, and open a new task so the installed skill metadata is loaded.
+The private Git repository is the distribution source. Users may install the Plugin through its marketplace or run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 
