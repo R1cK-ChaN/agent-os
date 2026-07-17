@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import assert from "node:assert/strict";
-import { cp, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -9,60 +9,60 @@ import { spawnSync } from "node:child_process";
 const ROOT = resolve(import.meta.dirname, "..");
 const CLI = join(ROOT, "scripts", "agent-os.mjs");
 
-function run(command, args, cwd, env = process.env) {
+function execute(command, args, cwd, env = process.env, allowFailure = false) {
   const result = spawnSync(command, args, { cwd, env, encoding: "utf8" });
-  if (result.status !== 0) throw new Error(result.stderr || result.stdout);
-  return result.stdout;
+  if (result.error) throw result.error;
+  if (!allowFailure && result.status !== 0) throw new Error(result.stderr || result.stdout);
+  return result;
+}
+
+function output(command, args, cwd, env = process.env) {
+  return execute(command, args, cwd, env).stdout;
 }
 
 const sandbox = await mkdtemp(join(tmpdir(), "agent-os-bootstrap-test-"));
 const project = join(sandbox, "project");
 const home = join(sandbox, "home");
-const runtime = join(sandbox, "runtime");
 const skillsHome = join(home, ".agents", "skills");
 await mkdir(project, { recursive: true });
 await mkdir(home, { recursive: true });
-run("git", ["init", "-q"], project);
-run("git", ["config", "user.email", "test@example.com"], project);
-run("git", ["config", "user.name", "Agent OS Test"], project);
+output("git", ["init", "-q"], project);
+output("git", ["config", "user.email", "test@example.com"], project);
+output("git", ["config", "user.name", "Agent OS Test"], project);
 await writeFile(join(project, "README.md"), "fixture\n");
-run("git", ["add", "README.md"], project);
-run("git", ["commit", "-qm", "fixture"], project);
+output("git", ["add", "README.md"], project);
+output("git", ["commit", "-qm", "fixture"], project);
 await writeFile(join(project, "dirty.txt"), "preserve me\n");
 
-const before = run("git", ["status", "--porcelain=v2", "--untracked-files=all"], project);
-const output = run("node", [CLI, "bootstrap", "--target", project, "--agent-os-home", runtime, "--skills-home", skillsHome, "--issue", "TEST-1", "--json"], ROOT, { ...process.env, HOME: home });
-const result = JSON.parse(output);
-const after = run("git", ["status", "--porcelain=v2", "--untracked-files=all"], project);
+const snapshot = async () => ({
+  head: output("git", ["rev-parse", "HEAD"], project),
+  branch: output("git", ["symbolic-ref", "--short", "HEAD"], project),
+  status: output("git", ["status", "--porcelain=v2", "--untracked-files=all"], project),
+  config: await readFile(join(project, ".git", "config"), "utf8"),
+});
 
+const before = await snapshot();
+const result = JSON.parse(output("node", [CLI, "bootstrap", "--target", project, "--skills-home", skillsHome, "--json"], ROOT, { ...process.env, HOME: home }));
+const after = await snapshot();
 assert.equal(result.ok, true);
-assert.equal(result.handoff.projectMutationCheck.passed, true);
-assert.equal(result.handoff.task.linearIssue, "TEST-1");
-assert.equal(before, after, "bootstrap must preserve the exact dirty worktree state");
-assert.ok(result.handoffPath.startsWith(runtime));
-assert.ok((await readFile(result.handoffPath, "utf8")).includes('"prepare-development-workspace"'));
+assert.equal(result.projectMutationCheck.passed, true);
+assert.deepEqual(after, before, "bootstrap must preserve the exact dirty repository state");
+assert.ok(result.skills.every((skill) => ["install", "skip", "update"].includes(skill.action)));
 
-const installation = JSON.parse(await readFile(join(runtime, "installation.json"), "utf8"));
-assert.ok(installation.managedSkills.length >= 1);
-for (const skill of installation.managedSkills) {
-  assert.ok(skill.destination.startsWith(skillsHome));
-  assert.ok(!skill.destination.startsWith(project));
-}
+const second = JSON.parse(output("node", [CLI, "bootstrap", "--target", project, "--skills-home", skillsHome, "--json"], ROOT, { ...process.env, HOME: home }));
+assert.ok(second.skills.every((skill) => skill.action === "skip"), "a repeated bootstrap must be idempotent");
 
-const status = JSON.parse(run("node", [CLI, "status", "--agent-os-home", runtime, "--skills-home", skillsHome, "--json"], ROOT, { ...process.env, HOME: home }));
-assert.equal(status.ok, true);
+const linkedSkills = join(sandbox, "linked-skills");
+await symlink(join(project, ".git"), linkedSkills, "dir");
+const escaped = execute("node", [CLI, "bootstrap", "--target", project, "--skills-home", linkedSkills], ROOT, { ...process.env, HOME: home }, true);
+assert.notEqual(escaped.status, 0);
+assert.match(escaped.stderr, /must resolve outside the target repository/);
+assert.deepEqual(await snapshot(), before, "a rejected symlink escape must not change the repository");
 
-const removed = JSON.parse(run("node", [CLI, "uninstall", "--agent-os-home", runtime, "--skills-home", skillsHome, "--json"], ROOT, { ...process.env, HOME: home }));
-assert.equal(removed.ok, true);
-assert.equal(removed.removed.length, installation.managedSkills.length);
-
-const rejected = spawnSync("node", [CLI, "bootstrap", "--target", project, "--agent-os-home", join(project, ".agent-os"), "--skills-home", skillsHome], { cwd: ROOT, env: { ...process.env, HOME: home }, encoding: "utf8" });
-assert.notEqual(rejected.status, 0);
-assert.match(rejected.stderr, /must be outside the target repository/);
-
-await mkdir(join(skillsHome, "agent-os-prepare-development-workspace"), { recursive: true });
-await writeFile(join(skillsHome, "agent-os-prepare-development-workspace", "SKILL.md"), "---\nname: prepare-development-workspace\ndescription: Unmanaged fixture.\n---\n");
-const conflict = spawnSync("node", [CLI, "bootstrap", "--target", project, "--agent-os-home", runtime, "--skills-home", skillsHome], { cwd: ROOT, env: { ...process.env, HOME: home }, encoding: "utf8" });
+const unmanaged = join(sandbox, "unmanaged-skills");
+await mkdir(join(unmanaged, "agent-os-prepare-development-workspace"), { recursive: true });
+await writeFile(join(unmanaged, "agent-os-prepare-development-workspace", "SKILL.md"), "---\nname: prepare-development-workspace\ndescription: Unmanaged fixture.\n---\n");
+const conflict = execute("node", [CLI, "bootstrap", "--target", project, "--skills-home", unmanaged], ROOT, { ...process.env, HOME: home }, true);
 assert.notEqual(conflict.status, 0);
 assert.match(conflict.stderr, /Refusing to overwrite unmanaged Skill destination/);
 
