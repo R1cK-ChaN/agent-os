@@ -66,12 +66,14 @@ function isWithin(parent, candidate) {
 async function assertExternal(target, userSkills) {
   const targetRoot = await realpath(target);
   const gitDirRaw = run("git", ["rev-parse", "--git-dir"], target).stdout.trim();
+  const gitCommonDirRaw = run("git", ["rev-parse", "--git-common-dir"], target).stdout.trim();
   const gitRoot = await realpath(resolve(target, gitDirRaw));
+  const gitCommonRoot = await realpath(resolve(target, gitCommonDirRaw));
   const skillRoot = await nearestExisting(userSkills);
-  if (isWithin(targetRoot, skillRoot) || isWithin(gitRoot, skillRoot)) {
-    throw new Error("The user Skill directory must resolve outside the target repository and its Git directory");
+  if (isWithin(targetRoot, skillRoot) || isWithin(gitRoot, skillRoot) || isWithin(gitCommonRoot, skillRoot)) {
+    throw new Error("The user Skill directory must resolve outside the target repository and its Git directories");
   }
-  return { targetRoot, gitRoot, skillRoot };
+  return { targetRoot, gitRoot, gitCommonRoot, skillRoot };
 }
 
 async function sha256(path) {
@@ -122,12 +124,14 @@ async function gitSnapshot(target) {
   const inside = run("git", ["rev-parse", "--is-inside-work-tree"], target, true);
   if (inside.status !== 0 || inside.stdout.trim() !== "true") throw new Error(`Target is not a Git worktree: ${target}`);
   const gitDir = resolve(target, run("git", ["rev-parse", "--git-dir"], target).stdout.trim());
+  const gitCommonDir = resolve(target, run("git", ["rev-parse", "--git-common-dir"], target).stdout.trim());
   return {
     head: run("git", ["rev-parse", "HEAD"], target).stdout.trim(),
     branch: run("git", ["symbolic-ref", "--quiet", "--short", "HEAD"], target, true).stdout.trim() || null,
     status: run("git", ["status", "--porcelain=v2", "--untracked-files=all"], target).stdout,
-    configDigest: (await exists(join(gitDir, "config"))) ? await sha256(join(gitDir, "config")) : null,
-    hooksDigest: (await exists(join(gitDir, "hooks"))) ? await directoryDigest(join(gitDir, "hooks"), true) : null,
+    configDigest: (await exists(join(gitCommonDir, "config"))) ? await sha256(join(gitCommonDir, "config")) : null,
+    worktreeConfigDigest: (await exists(join(gitDir, "config.worktree"))) ? await sha256(join(gitDir, "config.worktree")) : null,
+    hooksDigest: (await exists(join(gitCommonDir, "hooks"))) ? await directoryDigest(join(gitCommonDir, "hooks"), true) : null,
   };
 }
 
@@ -183,10 +187,11 @@ async function applyPlan(plan, userSkills, pluginVersion) {
       }
       try {
         await rename(staged, skill.destination);
-        await rm(stagingRoot, { recursive: true, force: true });
         operations.push({ destination: skill.destination, backup });
+        await rm(stagingRoot, { recursive: true, force: true });
       } catch (error) {
-        if (backup && !(await exists(skill.destination))) await rename(backup, skill.destination);
+        if (!operations.some((operation) => operation.destination === skill.destination)
+            && backup && !(await exists(skill.destination))) await rename(backup, skill.destination);
         throw error;
       }
     }
@@ -213,10 +218,19 @@ async function bootstrap(options) {
     await assertExternal(target, await realpath(userSkills));
     const after = await gitSnapshot(target);
     if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error("Bootstrap changed the target repository");
-    for (const operation of operations) if (operation.backup) await rm(operation.backup, { recursive: true, force: true });
   } catch (error) {
     await rollback(operations);
     throw error;
+  }
+
+  const cleanupWarnings = [];
+  for (const operation of operations) {
+    if (!operation.backup) continue;
+    try {
+      await rm(operation.backup, { recursive: true, force: true });
+    } catch (error) {
+      cleanupWarnings.push({ skill: basename(operation.destination), detail: error.message });
+    }
   }
 
   return {
@@ -225,6 +239,7 @@ async function bootstrap(options) {
     pluginVersion: info.manifest.version,
     target,
     projectMutationCheck: { passed: true },
+    cleanup: { passed: cleanupWarnings.length === 0, warnings: cleanupWarnings },
     skills: plan.map(({ name, action }) => ({ name, action })),
   };
 }
@@ -259,6 +274,7 @@ function print(result, json) {
   if (json) return process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   if (result.command === "bootstrap" && !result.checkOnly) {
     console.log("Agent OS Skills activated without changing the target repository.");
+    for (const warning of result.cleanup.warnings) console.error(`Cleanup warning for ${warning.skill}: ${warning.detail}`);
     console.log("Start a new Codex task and use prepare-development-workspace with the target repository and task identifier.");
   } else console.log(JSON.stringify(result, null, 2));
 }
