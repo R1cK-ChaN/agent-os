@@ -1,0 +1,4 @@
+interface:
+  display_name: "Checkpoint Development Work"
+  short_description: "Persist coherent work for reliable recovery"
+  default_prompt: "Use $checkpoint-development-work to create a safe remote checkpoint before pausing."

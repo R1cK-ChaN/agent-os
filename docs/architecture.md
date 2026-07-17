@@ -30,19 +30,20 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 1. Start from a Linear issue.
 2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
-3. Load repository-local instructions, domain context, specifications, contracts, tests, and smoke paths.
+3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and declarations, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
 4. Create an issue-scoped GitHub branch without private task metadata.
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch.
-6. Implement Red-Green-Refactor-Verify slices.
-7. Review, commit, push, and open a GitHub pull request with scope-first naming.
-8. Wait for required checks and merge authority.
-9. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
-10. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
-11. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
+6. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
+7. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
+8. Review, commit, push, and open a GitHub pull request with scope-first naming.
+9. Wait for required checks and merge authority.
+10. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
+11. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
+12. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
 ## Recovery protocol
 
-A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. Remote Git state overrides stale checkpoints. Uncommitted local work and previous chat history are disposable and must not be required for recovery.
+A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
 
 ## Repository shape
 
@@ -60,6 +61,7 @@ plugins/agent-os/skills/execute-linear-issue/     End-to-end orchestration skill
   references/issue-contract.md                    Scope authority and projection
   references/living-map.md                        Code and documentation synchronization
   references/release-safety.md                    Fast staging and production exposure
+  references/verification-strategy.md             Risk-scaled verification ladder
 plugins/agent-os/skills/design-software-change/   Cross-project software design skill
   agents/openai.yaml                              Skill discovery metadata
   references/design-precedence.md                 Plugin method and project-truth boundary
@@ -68,7 +70,17 @@ plugins/agent-os/skills/design-software-change/   Cross-project software design 
   references/domain-modeling.md                    Domain language, invariants, and ownership
   references/database-design.md                    Durable data-model design
   references/api-design.md                         Callable-boundary and contract design
-scripts/verify_architecture.py                    Deterministic architecture checks
+plugins/agent-os/skills/prepare-development-workspace/ Evidence-based workspace readiness skill
+  agents/openai.yaml                              Skill discovery metadata
+  references/capability-discovery.md              Runtime, command, tool, and service evidence
+  references/workspace-readiness.md               Concise readiness result contract
+  references/workspace-security.md                VM secret, logging, and credential isolation
+plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
+  agents/openai.yaml                              Skill discovery metadata
+  references/checkpoint-consistency.md            Reviewable and recoverable state rules
+  references/checkpoint-record.md                 Durable pause and resume evidence
+scripts/verify_privacy.py                         Private metadata and credential-artifact scan
+docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
 Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path.
@@ -78,3 +90,9 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 The private Git repository is the distribution source. Add it as a Codex plugin marketplace, install `agent-os`, authorize the required external systems separately, and open a new task so the installed skill metadata is loaded.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
+
+## Acceptance boundary
+
+Official Skill and Plugin validators own package-format validation. GitGuardian owns secret detection. The repository adds one fast privacy scan for private task metadata and obvious credential artifacts, plus a one-page manual checklist for workspace recovery, checkpoints, privacy, authority, staging, and design precedence.
+
+Agent behavior automation is intentionally deferred. Add a focused regression only after the same failure pattern appears in at least three real project uses or when a target repository already requires it; do not build a general LLM benchmark or make nested Agent execution a normal release gate.

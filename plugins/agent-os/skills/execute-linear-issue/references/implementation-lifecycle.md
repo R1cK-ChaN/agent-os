@@ -26,6 +26,8 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 9. **Merge:** Wait for explicit authority and required checks. Do not equate a staging deploy with production exposure.
 10. **Record:** After merge, update only the private Linear task with the completion checkpoint.
 
+Default to one GitHub issue per branch. Get user approval before combining multiple issues on one branch.
+
 ## Pull request content
 
 Include the shipped behavior, verification, risk, documentation impact, rollout or exposure plan when applicable, and rollback path. Use `Closes #<github-number>` for the owning GitHub issue when merge should close it. Do not mention the originating Linear task.
