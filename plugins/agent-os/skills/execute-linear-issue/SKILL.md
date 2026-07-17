@@ -17,7 +17,7 @@ Read the complete Linear issue before changing external state. Read [issue-contr
 
 1. Retrieve the Linear issue, relations, attachments, comments, status, project, and team.
 2. Resolve the target GitHub repository from an explicit issue link, project resource, existing pull request, or durable project mapping. If ambiguous, ask once and save the confirmed repository link back to Linear.
-3. Read the repository root and applicable nested `AGENTS.md` files, file contracts, specifications, tests, fixtures, scripts, and smoke paths.
+3. Use the plugin's `prepare-development-workspace` Skill to recover durable remote state and produce Workspace Readiness before implementation. Follow its recovery entry point, then read every applicable repository instruction, contract, specification, test, fixture, script, and smoke path it identifies.
 4. Read [github-privacy.md](references/github-privacy.md) before creating or editing any GitHub artifact.
 5. For non-trivial implementation, require one privacy-safe GitHub issue unless the target repository explicitly forbids issues and defines its own branch convention. Follow the projection and approval rules in `issue-contract.md`, then attach the GitHub URL only on the Linear side.
 6. Read [implementation-lifecycle.md](references/implementation-lifecycle.md) and [engineering-quality.md](references/engineering-quality.md), then define the next small slice.
@@ -33,7 +33,7 @@ Read the complete Linear issue before changing external state. Read [issue-contr
 
 ## Resume interrupted work
 
-Reconstruct state from durable systems in this order:
+Run `prepare-development-workspace` first and use its Workspace Readiness result to identify the safe recovery entry point. Then reconstruct state from durable systems in this order:
 
 1. Current Linear issue and its GitHub links
 2. Linked pull request and checks

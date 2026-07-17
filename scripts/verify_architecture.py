@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the first Agent OS plugin architecture slice."""
+"""Verify Agent OS plugin architecture and policy contracts."""
 
 from __future__ import annotations
 

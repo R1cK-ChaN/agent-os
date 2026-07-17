@@ -30,7 +30,7 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 1. Start from a Linear issue.
 2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
-3. Load repository-local instructions, domain context, specifications, contracts, tests, and smoke paths.
+3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and declarations, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
 4. Create an issue-scoped GitHub branch without private task metadata.
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch.
 6. Implement Red-Green-Refactor-Verify slices.
@@ -42,7 +42,7 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 ## Recovery protocol
 
-A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. Remote Git state overrides stale checkpoints. Uncommitted local work and previous chat history are disposable and must not be required for recovery.
+A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
 
 ## Repository shape
 
@@ -68,6 +68,10 @@ plugins/agent-os/skills/design-software-change/   Cross-project software design 
   references/domain-modeling.md                    Domain language, invariants, and ownership
   references/database-design.md                    Durable data-model design
   references/api-design.md                         Callable-boundary and contract design
+plugins/agent-os/skills/prepare-development-workspace/ Evidence-based workspace readiness skill
+  agents/openai.yaml                              Skill discovery metadata
+  references/capability-discovery.md              Runtime, command, tool, and service evidence
+  references/workspace-readiness.md               Concise readiness result contract
 scripts/verify_architecture.py                    Deterministic architecture checks
 ```
 

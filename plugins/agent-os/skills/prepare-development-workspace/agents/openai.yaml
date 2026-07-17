@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prepare Development Workspace"
+  short_description: "Assess fresh workspace readiness and recovery"
+  default_prompt: "Use $prepare-development-workspace to assess this workspace and identify its recovery entry point."
