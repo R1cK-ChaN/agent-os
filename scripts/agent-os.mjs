@@ -67,13 +67,16 @@ async function assertExternal(target, userSkills) {
   const targetRoot = await realpath(target);
   const gitDirRaw = run("git", ["rev-parse", "--git-dir"], target).stdout.trim();
   const gitCommonDirRaw = run("git", ["rev-parse", "--git-common-dir"], target).stdout.trim();
+  const hooksDirRaw = run("git", ["rev-parse", "--git-path", "hooks"], target).stdout.trim();
   const gitRoot = await realpath(resolve(target, gitDirRaw));
   const gitCommonRoot = await realpath(resolve(target, gitCommonDirRaw));
+  const hooksRoot = await nearestExisting(resolve(target, hooksDirRaw));
   const skillRoot = await nearestExisting(userSkills);
-  if (isWithin(targetRoot, skillRoot) || isWithin(gitRoot, skillRoot) || isWithin(gitCommonRoot, skillRoot)) {
-    throw new Error("The user Skill directory must resolve outside the target repository and its Git directories");
+  if (isWithin(targetRoot, skillRoot) || isWithin(gitRoot, skillRoot)
+      || isWithin(gitCommonRoot, skillRoot) || isWithin(hooksRoot, skillRoot)) {
+    throw new Error("The user Skill directory must resolve outside the target repository, its Git directories, and its effective Hooks directory");
   }
-  return { targetRoot, gitRoot, gitCommonRoot, skillRoot };
+  return { targetRoot, gitRoot, gitCommonRoot, hooksRoot, skillRoot };
 }
 
 async function sha256(path) {
@@ -125,13 +128,14 @@ async function gitSnapshot(target) {
   if (inside.status !== 0 || inside.stdout.trim() !== "true") throw new Error(`Target is not a Git worktree: ${target}`);
   const gitDir = resolve(target, run("git", ["rev-parse", "--git-dir"], target).stdout.trim());
   const gitCommonDir = resolve(target, run("git", ["rev-parse", "--git-common-dir"], target).stdout.trim());
+  const hooksDir = await nearestExisting(resolve(target, run("git", ["rev-parse", "--git-path", "hooks"], target).stdout.trim()));
   return {
     head: run("git", ["rev-parse", "HEAD"], target).stdout.trim(),
     branch: run("git", ["symbolic-ref", "--quiet", "--short", "HEAD"], target, true).stdout.trim() || null,
     status: run("git", ["status", "--porcelain=v2", "--untracked-files=all"], target).stdout,
     configDigest: (await exists(join(gitCommonDir, "config"))) ? await sha256(join(gitCommonDir, "config")) : null,
     worktreeConfigDigest: (await exists(join(gitDir, "config.worktree"))) ? await sha256(join(gitDir, "config.worktree")) : null,
-    hooksDigest: (await exists(join(gitCommonDir, "hooks"))) ? await directoryDigest(join(gitCommonDir, "hooks"), true) : null,
+    hooksDigest: (await exists(hooksDir)) ? await directoryDigest(hooksDir, true) : null,
   };
 }
 
