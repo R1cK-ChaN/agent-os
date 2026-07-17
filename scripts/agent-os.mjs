@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -41,6 +42,22 @@ function paths(options = {}) {
     handoffs: join(home, "handoffs"),
     backups: join(home, "backups"),
   };
+}
+
+function isWithin(parent, candidate) {
+  const base = resolve(parent);
+  const path = resolve(candidate);
+  return path === base || path.startsWith(`${base}/`) || path.startsWith(`${base}\\`);
+}
+
+async function nearestExisting(path) {
+  let current = resolve(path);
+  while (!(await exists(current))) {
+    const parent = dirname(current);
+    if (parent === current) throw new Error(`No existing parent for ${path}`);
+    current = parent;
+  }
+  return current;
 }
 
 function run(command, args, cwd, allowFailure = false) {
@@ -155,6 +172,9 @@ async function installSkills(info, locations, checkOnly = false) {
     const destination = join(locations.userSkills, `agent-os-${skill.folder}`);
     const conflict = discovered.get(skill.name);
     const ownedPath = managed.get(skill.name)?.destination;
+    if (await exists(destination) && resolve(ownedPath || "") !== resolve(destination)) {
+      throw new Error(`Refusing to overwrite unmanaged Skill destination: ${destination}`);
+    }
     if (conflict && resolve(conflict) !== resolve(destination) && resolve(conflict) !== resolve(ownedPath || destination)) {
       throw new Error(`Skill name conflict for ${skill.name}: ${conflict}`);
     }
@@ -195,6 +215,9 @@ function sanitizeRemote(remote) {
 async function bootstrap(options) {
   const target = resolve(options.target || process.cwd());
   const locations = paths(options);
+  if (isWithin(target, locations.home) || isWithin(target, locations.userSkills)) {
+    throw new Error("AGENT_OS_HOME and the user Skill directory must be outside the target repository");
+  }
   const before = await gitSnapshot(target);
   const info = await pluginInfo();
   const installed = await installSkills(info, locations, Boolean(options["check-only"]));
@@ -245,7 +268,11 @@ async function doctor(options) {
   };
   await check("plugin", async () => `${(await pluginInfo()).skills.length} skills`);
   await check("target-git", async () => (await gitSnapshot(target)).head);
-  await check("user-skills-parent", async () => { await mkdir(locations.userSkills, { recursive: true }); return locations.userSkills; });
+  await check("user-skills-parent", async () => {
+    const parent = await nearestExisting(locations.userSkills);
+    await access(parent, fsConstants.W_OK);
+    return parent;
+  });
   await check("installation", async () => (await readInstallation(locations.installation))?.pluginVersion || "not installed");
   return { ok: checks.every((item) => item.status === "available"), command: "doctor", checks };
 }
