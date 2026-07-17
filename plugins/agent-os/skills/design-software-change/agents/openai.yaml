@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Software Change"
+  short_description: "Design clear modules, domains, data, and APIs"
+  default_prompt: "Use $design-software-change to design this change before implementation."

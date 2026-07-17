@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+"""Verify the first Agent OS plugin architecture slice."""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PLUGIN = ROOT / "plugins" / "agent-os"
+SKILL = PLUGIN / "skills" / "execute-linear-issue"
+DESIGN_SKILL = PLUGIN / "skills" / "design-software-change"
+
+REQUIRED_FILES = (
+    ROOT / ".agents" / "plugins" / "marketplace.json",
+    ROOT / "AGENTS.md",
+    ROOT / "docs" / "architecture.md",
+    PLUGIN / ".codex-plugin" / "plugin.json",
+    SKILL / "SKILL.md",
+    SKILL / "agents" / "openai.yaml",
+    SKILL / "references" / "authority-policy.md",
+    SKILL / "references" / "completion-checkpoint.md",
+    SKILL / "references" / "database-change.md",
+    SKILL / "references" / "engineering-quality.md",
+    SKILL / "references" / "github-privacy.md",
+    SKILL / "references" / "implementation-lifecycle.md",
+    SKILL / "references" / "issue-contract.md",
+    SKILL / "references" / "living-map.md",
+    SKILL / "references" / "release-safety.md",
+    DESIGN_SKILL / "SKILL.md",
+    DESIGN_SKILL / "agents" / "openai.yaml",
+    DESIGN_SKILL / "references" / "api-design.md",
+    DESIGN_SKILL / "references" / "database-design.md",
+    DESIGN_SKILL / "references" / "deep-modules.md",
+    DESIGN_SKILL / "references" / "design-precedence.md",
+    DESIGN_SKILL / "references" / "domain-modeling.md",
+    DESIGN_SKILL / "references" / "naming-and-types.md",
+)
+
+
+def fail(message: str, failures: list[str]) -> None:
+    failures.append(message)
+
+
+def main() -> int:
+    failures: list[str] = []
+
+    for path in REQUIRED_FILES:
+        if not path.is_file():
+            fail(f"missing required file: {path.relative_to(ROOT)}", failures)
+
+    marketplace_path = ROOT / ".agents" / "plugins" / "marketplace.json"
+    plugin_path = PLUGIN / ".codex-plugin" / "plugin.json"
+
+    if marketplace_path.is_file():
+        marketplace = json.loads(marketplace_path.read_text())
+        if marketplace.get("name") != "agent-os":
+            fail("marketplace name must be agent-os", failures)
+        entries = marketplace.get("plugins", [])
+        if len(entries) != 1 or entries[0].get("name") != "agent-os":
+            fail("marketplace must expose exactly one agent-os plugin", failures)
+        elif entries[0].get("source", {}).get("path") != "./plugins/agent-os":
+            fail("marketplace plugin path must be ./plugins/agent-os", failures)
+
+    if plugin_path.is_file():
+        manifest = json.loads(plugin_path.read_text())
+        if manifest.get("name") != "agent-os":
+            fail("plugin manifest name must be agent-os", failures)
+        if manifest.get("skills") != "./skills/":
+            fail("plugin manifest must expose ./skills/", failures)
+        for unsupported in ("apps", "mcpServers", "hooks"):
+            if unsupported in manifest:
+                fail(f"plugin manifest must not declare absent {unsupported}", failures)
+
+    policy_requirements = {
+        SKILL / "references" / "engineering-quality.md": (
+            "not a hard rule",
+            "stop before committing",
+        ),
+        SKILL / "references" / "release-safety.md": (
+            "Staging is the default enabled integration environment",
+            "Do not add a feature flag",
+            "A normal staging validation does not require production rollout machinery",
+        ),
+        SKILL / "references" / "issue-contract.md": (
+            "Linear is the private scope authority",
+            "GitHub issue is a privacy-safe implementation projection",
+            "amend the Linear issue before implementation",
+        ),
+        SKILL / "SKILL.md": (
+            "smallest representative staging smoke",
+            "Do not invent a new gate",
+            "design-software-change",
+        ),
+        DESIGN_SKILL / "SKILL.md": (
+            "project-specific facts",
+            "Deep Modules",
+            "before implementation",
+        ),
+        DESIGN_SKILL / "references" / "design-precedence.md": (
+            "The plugin owns reusable judgment",
+            "The target repository owns project truth",
+        ),
+        DESIGN_SKILL / "references" / "deep-modules.md": (
+            "information hiding",
+            "deletion test",
+            "pass-through",
+        ),
+        DESIGN_SKILL / "references" / "naming-and-types.md": (
+            "semantic consistency",
+            "repository tooling",
+        ),
+        DESIGN_SKILL / "references" / "domain-modeling.md": (
+            "bounded context",
+            "invariants",
+        ),
+        DESIGN_SKILL / "references" / "database-design.md": (
+            "constraints",
+            "data ownership",
+        ),
+        DESIGN_SKILL / "references" / "api-design.md": (
+            "idempotency",
+            "error semantics",
+        ),
+    }
+    for path, required_phrases in policy_requirements.items():
+        if not path.is_file():
+            continue
+        content = path.read_text()
+        for phrase in required_phrases:
+            if phrase not in content:
+                fail(f"{path.relative_to(ROOT)} must contain: {phrase}", failures)
+
+    skill_path = SKILL / "SKILL.md"
+    if skill_path.is_file():
+        skill_content = skill_path.read_text()
+        normalized_skill = skill_content.lower()
+        implementation_marker = "implement one small slice"
+        for policy_marker in ("[living-map.md]", "[release-safety.md]", "[database-change.md]"):
+            if normalized_skill.find(policy_marker.lower()) > normalized_skill.find(implementation_marker):
+                fail(f"SKILL.md must load {policy_marker} before implementation", failures)
+        if "pre-authorized by the repository workflow or explicitly approved" not in skill_content:
+            fail("SKILL.md must constrain staging deployment authority", failures)
+        design_marker = normalized_skill.find("design-software-change")
+        implementation_position = normalized_skill.find(implementation_marker)
+        if design_marker == -1 or implementation_position == -1 or design_marker > implementation_position:
+            fail("SKILL.md must route non-trivial design before implementation", failures)
+        branch_position = normalized_skill.find("create one issue-scoped branch")
+        if branch_position == -1 or design_marker == -1 or branch_position > design_marker:
+            fail("SKILL.md must create the issue branch before persisting design", failures)
+
+    text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
+    placeholder = re.compile(r"\[TODO:|\bTODO\b")
+    private_identifier = re.compile(r"\b(?:RIC|AOS)-\d+\b")
+    private_url = re.compile(r"https://linear\.app/")
+
+    for path in text_files:
+        if path.resolve() == Path(__file__).resolve():
+            continue
+        try:
+            content = path.read_text()
+        except UnicodeDecodeError:
+            continue
+        relative = path.relative_to(ROOT)
+        if placeholder.search(content):
+            fail(f"placeholder remains in {relative}", failures)
+        if private_identifier.search(content):
+            fail(f"real private task identifier appears in {relative}", failures)
+        if private_url.search(content):
+            fail(f"private Linear URL appears in {relative}", failures)
+
+    if failures:
+        print("Architecture verification failed:")
+        for failure in failures:
+            print(f"- {failure}")
+        return 1
+
+    print("Architecture verification passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
