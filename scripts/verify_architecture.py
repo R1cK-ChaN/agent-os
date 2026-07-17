@@ -70,6 +70,7 @@ REQUIRED_FILES = (
     EVALS / "AGENTS.md",
     EVALS / "run_evals.py",
     EVALS / "run_forward_evals.py",
+    EVALS / "test_forward_eval_contract.py",
     EVALS / "forward-fixtures" / "security-first-recovery.json",
     EVALS / "forward-fixtures" / "missing-tool-readiness.json",
     *(EVALS / "fixtures" / name for name in EVAL_FIXTURES),
@@ -229,6 +230,20 @@ def main() -> int:
     if skill_path.is_file():
         skill_content = skill_path.read_text()
         normalized_skill = skill_content.lower()
+        security_position = normalized_skill.find("workspace-security.md")
+        linear_tool_position = normalized_skill.find("require an authorized linear tool")
+        linear_issue_position = normalized_skill.find("read the complete linear issue")
+        if (
+            security_position == -1
+            or linear_tool_position == -1
+            or linear_issue_position == -1
+            or security_position > linear_tool_position
+            or security_position > linear_issue_position
+        ):
+            fail(
+                "Linear execution must load secret safety before task or provider inspection",
+                failures,
+            )
         implementation_marker = "implement one small slice"
         for policy_marker in ("[living-map.md]", "[release-safety.md]", "[database-change.md]"):
             if normalized_skill.find(policy_marker.lower()) > normalized_skill.find(implementation_marker):
@@ -306,6 +321,32 @@ def main() -> int:
         design_content = design_skill_path.read_text().lower()
         if "workspace-security.md" not in design_content or "verification-strategy.md" not in design_content:
             fail("design workflow must route security and verification when applicable", failures)
+        security_position = design_content.find("workspace-security.md")
+        precedence_position = design_content.find("design-precedence.md")
+        repository_position = design_content.find("nearest repository instructions")
+        if (
+            security_position == -1
+            or precedence_position == -1
+            or repository_position == -1
+            or security_position > precedence_position
+            or security_position > repository_position
+        ):
+            fail(
+                "design workflow must load secret safety before repository design material",
+                failures,
+            )
+
+    forward_eval_path = EVALS / "run_forward_evals.py"
+    if forward_eval_path.is_file():
+        forward_eval = forward_eval_path.read_text()
+        for phrase in (
+            '"read-only"',
+            '"minItems": 1',
+            "snapshot_repository",
+            "assert_repository_unchanged",
+        ):
+            if phrase not in forward_eval:
+                fail(f"forward eval runner must contain: {phrase}", failures)
 
     text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     placeholder = re.compile(r"\[TODO:|\bTODO\b")
