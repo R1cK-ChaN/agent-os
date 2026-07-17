@@ -34,11 +34,12 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 4. Create an issue-scoped GitHub branch without private task metadata.
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch.
 6. Implement Red-Green-Refactor-Verify slices.
-7. Review, commit, push, and open a GitHub pull request with scope-first naming.
-8. Wait for required checks and merge authority.
-9. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
-10. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
-11. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
+7. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
+8. Review, commit, push, and open a GitHub pull request with scope-first naming.
+9. Wait for required checks and merge authority.
+10. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
+11. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
+12. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
 ## Recovery protocol
 
@@ -72,6 +73,10 @@ plugins/agent-os/skills/prepare-development-workspace/ Evidence-based workspace 
   agents/openai.yaml                              Skill discovery metadata
   references/capability-discovery.md              Runtime, command, tool, and service evidence
   references/workspace-readiness.md               Concise readiness result contract
+plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
+  agents/openai.yaml                              Skill discovery metadata
+  references/checkpoint-consistency.md            Reviewable and recoverable state rules
+  references/checkpoint-record.md                 Durable pause and resume evidence
 scripts/verify_architecture.py                    Deterministic architecture checks
 ```
 

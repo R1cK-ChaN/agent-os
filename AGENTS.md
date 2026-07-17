@@ -6,6 +6,7 @@ This repository distributes a private, installable Agent OS workflow. It contain
 
 - `plugins/agent-os/` owns the installable plugin and reusable skills.
 - `plugins/agent-os/skills/prepare-development-workspace/` owns evidence-based workspace readiness and durable recovery orientation.
+- `plugins/agent-os/skills/checkpoint-development-work/` owns coherent remote checkpoints and pause/resume evidence.
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
 - `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
 - A target repository owns its code, domain language, business rules, schemas, API contracts, framework conventions, specifications, verification commands, and local `AGENTS.md` guidance.
