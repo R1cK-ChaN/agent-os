@@ -1,6 +1,6 @@
 # Agent OS architecture
 
-Agent OS is a private control-plane plugin for rebuilding a consistent development workflow in replaceable Codex environments. It stores reusable method and orchestration while durable external systems store project facts and execution state.
+Agent OS is a personal control-plane plugin for rebuilding a consistent development workflow in replaceable Codex environments. It stores reusable method and orchestration while durable external systems store project facts and execution state.
 
 ## System boundaries
 
@@ -43,9 +43,9 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 ## Sidecar bootstrap
 
-Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, resolves canonical paths to reject symlink escapes, and compares target HEAD, branch, index, worktree status, local Git configuration, and hooks before and after activation. Bootstrap fails on target mutation and rolls back the current Skill transaction. It never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
+Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, resolves the target worktree, worktree-specific Git directory, and shared Git common directory to reject symlink and linked-worktree escapes, and compares target HEAD, branch, index, worktree status, shared and worktree-local Git configuration, and hooks before and after activation. Bootstrap rolls back the Skill transaction if validation fails before commit. Once the final Git snapshot passes, backup cleanup is best-effort: failures retain the backup and return a warning without triggering a second rollback. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
 
-The public Git repository is the acquisition source. After activation, a new task runs `prepare-development-workspace` with the target repository and optional task identifier, then independently verifies GitHub, Linear, and other durable state. Successful activation is not proof of project readiness.
+The Git repository is intentionally public under [ADR 0001](decisions/0001-public-distribution.md) and is the acquisition source. After activation, a new task runs `prepare-development-workspace` with the target repository and optional task identifier, then independently verifies GitHub, Linear, and other durable state. Successful activation is not proof of project readiness.
 
 ## Recovery protocol
 
@@ -89,6 +89,7 @@ scripts/agent-os.mjs                              External bootstrap and read-on
 scripts/test_bootstrap.mjs                         Deterministic zero-pollution and lifecycle checks
 scripts/verify_privacy.py                          Private metadata and credential-artifact scan
 docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
+docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
@@ -96,7 +97,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 ## Installation model
 
-The public Git repository is the distribution source. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
+The intentionally public Git repository is the distribution source; [ADR 0001](decisions/0001-public-distribution.md) records that repository visibility is distinct from private workflow data. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 
