@@ -11,7 +11,7 @@ This repository distributes a private, installable Agent OS workflow. It contain
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
 - `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
 - `docs/manual-acceptance.md` owns the small, human-run workflow acceptance checklist.
-- `docs/bootstrap.md` and `scripts/agent-os.mjs` own project-external Sidecar activation, zero-mutation checks, and recovery handoffs.
+- `docs/bootstrap.md` and `scripts/agent-os.mjs` own project-external Sidecar activation, canonical path isolation, transactional rollback, and zero-mutation checks.
 - A target repository owns its code, domain language, business rules, schemas, API contracts, framework conventions, specifications, verification commands, and local `AGENTS.md` guidance.
 - Linear owns private task state and completion evidence. GitHub owns implementation history.
 
