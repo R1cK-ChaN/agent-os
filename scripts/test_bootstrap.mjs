@@ -69,6 +69,16 @@ assert.match(linkedEscape.stderr, /must resolve outside the target repository/);
 assert.deepEqual((await readdir(join(project, ".git"))).sort(), commonGitEntriesBefore, "a linked worktree must not write Skills into the shared Git directory");
 assert.ok(!(await readdir(join(project, ".git"))).some((entry) => entry.startsWith("agent-os-")));
 
+const externalHooks = join(sandbox, "external-hooks");
+await mkdir(externalHooks, { recursive: true });
+output("git", ["config", "core.hooksPath", externalHooks], project);
+const hooksEntriesBefore = (await readdir(externalHooks)).sort();
+const hooksEscape = execute("node", [CLI, "bootstrap", "--target", project, "--skills-home", externalHooks], ROOT, { ...process.env, HOME: home }, true);
+assert.notEqual(hooksEscape.status, 0);
+assert.match(hooksEscape.stderr, /effective Hooks directory/);
+assert.deepEqual((await readdir(externalHooks)).sort(), hooksEntriesBefore, "bootstrap must not write Skills into the effective external Hooks directory");
+output("git", ["config", "--unset", "core.hooksPath"], project);
+
 const unmanaged = join(sandbox, "unmanaged-skills");
 await mkdir(join(unmanaged, "agent-os-prepare-development-workspace"), { recursive: true });
 await writeFile(join(unmanaged, "agent-os-prepare-development-workspace", "SKILL.md"), "---\nname: prepare-development-workspace\ndescription: Unmanaged fixture.\n---\n");
