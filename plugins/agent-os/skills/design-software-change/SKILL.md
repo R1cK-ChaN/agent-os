@@ -9,20 +9,21 @@ Produce the smallest coherent design that preserves project truth in the target 
 
 ## Workflow
 
-1. Read [design-precedence.md](references/design-precedence.md), the nearest repository instructions, existing code, tests, contracts, domain context, ADRs, schemas, and API specifications. Never invent project-specific facts inside the plugin.
-2. State the change in the repository's current domain language. Resolve ambiguous terms, ownership, invariants, state transitions, failure behavior, and compatibility constraints before choosing modules or storage.
-3. Identify the affected design surfaces and load only their references:
+1. Read [workspace-security.md](../prepare-development-workspace/references/workspace-security.md) before any repository, Git, provider, design-material, log, fixture, credential, or external-service inspection. Establish the safe output boundary before project artifacts can enter model context.
+2. Read [design-precedence.md](references/design-precedence.md), the nearest repository instructions, existing code, tests, contracts, domain context, ADRs, schemas, and API specifications under that boundary. Never invent project-specific facts inside the plugin.
+3. State the change in the repository's current domain language. Resolve ambiguous terms, ownership, invariants, state transitions, failure behavior, and compatibility constraints before choosing modules or storage.
+4. Identify the affected design surfaces and load only their references:
    - Read [naming-and-types.md](references/naming-and-types.md) for new or changed names, types, identifiers, units, or public vocabulary.
    - Read [domain-modeling.md](references/domain-modeling.md) for domain concepts, bounded contexts, entities, value objects, invariants, state transitions, or ownership.
    - Read [deep-modules.md](references/deep-modules.md) for module boundaries, abstractions, dependencies, orchestration, adapters, or refactoring.
    - Read [database-design.md](references/database-design.md) for persistent data, schemas, queries, transactions, access control, or migrations.
    - Read [api-design.md](references/api-design.md) for internal or external APIs, events, commands, routes, SDKs, or provider boundaries.
-   - Read [workspace-security.md](../prepare-development-workspace/references/workspace-security.md) and [verification-strategy.md](../execute-linear-issue/references/verification-strategy.md) when the design changes credentials, sensitive logs or fixtures, environment authority, provider access, or the cost and depth of required verification.
-4. Propose one primary design. Describe responsibilities, interfaces, hidden decisions, data ownership, invariants, errors, compatibility, and the tests that prove the boundary. Present alternatives only when a real trade-off remains.
-5. Stress-test the design with normal, boundary, failure, retry, concurrency, authorization, and migration scenarios that apply. Simplify interfaces and remove special cases where the domain permits it.
-6. Apply Deep Modules, information hiding, complexity pull-down, and the deletion test. Reject pass-through layers, generic catch-all abstractions, duplicated policy, and class proliferation that do not reduce caller knowledge.
-7. Persist concrete decisions in the target repository, not this plugin. Update its code contracts, tests, `AGENTS.md`, domain context, schema, API specification, or a justified ADR according to repository conventions.
-8. Hand the approved design to implementation with a concise checkpoint: terms, invariants, module/API boundaries, data ownership, compatibility, verification, documentation impact, and unresolved risks.
+   - Read [verification-strategy.md](../execute-linear-issue/references/verification-strategy.md) when the design changes the cost or depth of required verification; re-check the already loaded security boundary when sensitive surfaces change.
+5. Propose one primary design. Describe responsibilities, interfaces, hidden decisions, data ownership, invariants, errors, compatibility, and the tests that prove the boundary. Present alternatives only when a real trade-off remains.
+6. Stress-test the design with normal, boundary, failure, retry, concurrency, authorization, and migration scenarios that apply. Simplify interfaces and remove special cases where the domain permits it.
+7. Apply Deep Modules, information hiding, complexity pull-down, and the deletion test. Reject pass-through layers, generic catch-all abstractions, duplicated policy, and class proliferation that do not reduce caller knowledge.
+8. Persist concrete decisions in the target repository, not this plugin. Update its code contracts, tests, `AGENTS.md`, domain context, schema, API specification, or a justified ADR according to repository conventions.
+9. Hand the approved design to implementation with a concise checkpoint: terms, invariants, module/API boundaries, data ownership, compatibility, verification, documentation impact, and unresolved risks.
 
 ## Design standard
 

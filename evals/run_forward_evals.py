@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -24,7 +26,11 @@ OUTPUT_SCHEMA = {
         "first_action": {"type": "string"},
         "capability_status": {"type": "string"},
         "claimed_success": {"type": "boolean"},
-        "actions": {"type": "array", "items": {"type": "string"}},
+        "actions": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 1,
+        },
         "evidence": {"type": "array", "items": {"type": "string"}},
     },
     "required": [
@@ -82,6 +88,36 @@ def create_repository(root: Path, fixture: dict[str, Any]) -> Path:
     return repository
 
 
+def snapshot_repository(repository: Path) -> dict[str, tuple[str, int, str]]:
+    """Capture path, mode, and content without relying on Git status."""
+    snapshot: dict[str, tuple[str, int, str]] = {}
+    for path in sorted(repository.rglob("*")):
+        relative = path.relative_to(repository).as_posix()
+        mode = path.lstat().st_mode & 0o7777
+        if path.is_symlink():
+            snapshot[relative] = ("symlink", mode, os.readlink(path))
+        elif path.is_file():
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            snapshot[relative] = ("file", mode, digest)
+        elif path.is_dir():
+            snapshot[relative] = ("directory", mode, "")
+    return snapshot
+
+
+def assert_repository_unchanged(
+    repository: Path, before: dict[str, tuple[str, int, str]]
+) -> None:
+    """Fail when the Agent changed any file, mode, link, or directory."""
+    after = snapshot_repository(repository)
+    if before == after:
+        return
+    changed = sorted(set(before) | set(after))
+    changed = [path for path in changed if before.get(path) != after.get(path)]
+    raise ForwardEvalError(
+        "Agent modified repository despite read-only contract: " + ", ".join(changed)
+    )
+
+
 def run_agent(repository: Path, fixture: dict[str, Any], root: Path) -> dict[str, Any]:
     schema_path = root / "output-schema.json"
     result_path = root / "agent-result.json"
@@ -109,7 +145,7 @@ evidence.
         "--ephemeral",
         "--ignore-user-config",
         "--sandbox",
-        "workspace-write",
+        "read-only",
         "--skip-git-repo-check",
         "--output-schema",
         str(schema_path),
@@ -119,7 +155,11 @@ evidence.
         str(repository),
         prompt,
     ]
-    completed = subprocess.run(command, capture_output=True, text=True, timeout=240)
+    before = snapshot_repository(repository)
+    try:
+        completed = subprocess.run(command, capture_output=True, text=True, timeout=240)
+    finally:
+        assert_repository_unchanged(repository, before)
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout).strip()
         raise ForwardEvalError(f"codex exec failed: {detail[-1200:]}")
@@ -132,6 +172,25 @@ evidence.
     return result
 
 
+def validate_result(result: dict[str, Any], fixture: dict[str, Any]) -> None:
+    """Validate structural ordering and scenario-specific Agent outcomes."""
+    actions = result.get("actions")
+    if not isinstance(actions, list) or not actions:
+        raise ForwardEvalError("Agent result must contain at least one action")
+    if not all(isinstance(action, str) and action for action in actions):
+        raise ForwardEvalError("Agent actions must be non-empty strings")
+
+    failures = []
+    for field, expected in fixture["expected"].items():
+        actual = result.get(field)
+        if actual != expected:
+            failures.append(f"{field}={actual!r}, expected {expected!r}")
+    if actions[0] != result.get("first_action"):
+        failures.append("actions[0] must match first_action")
+    if failures:
+        raise ForwardEvalError("; ".join(failures))
+
+
 def evaluate(path: Path) -> tuple[bool, str]:
     fixture = load_fixture(path)
     with tempfile.TemporaryDirectory(prefix="agent-os-forward-eval-") as temp_name:
@@ -139,15 +198,7 @@ def evaluate(path: Path) -> tuple[bool, str]:
         repository = create_repository(temp_root, fixture)
         result = run_agent(repository, fixture, temp_root)
 
-    failures = []
-    for field, expected in fixture["expected"].items():
-        actual = result.get(field)
-        if actual != expected:
-            failures.append(f"{field}={actual!r}, expected {expected!r}")
-    if result.get("actions") and result["actions"][0] != result.get("first_action"):
-        failures.append("actions[0] must match first_action")
-    if failures:
-        return False, f"{fixture['name']} ({'; '.join(failures)})"
+    validate_result(result, fixture)
     return True, f"{fixture['name']} (Agent actions satisfied)"
 
 

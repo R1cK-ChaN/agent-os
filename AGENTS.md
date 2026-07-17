@@ -32,6 +32,7 @@ Run all checks before committing:
 ```bash
 python3 scripts/verify_architecture.py
 python3 -B evals/run_evals.py
+python3 -B -m unittest evals.test_forward_eval_contract
 python3 -B evals/run_forward_evals.py
 ```
 

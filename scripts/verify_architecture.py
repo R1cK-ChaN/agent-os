@@ -181,7 +181,8 @@ def main() -> int:
             "uncheckpointable",
             "failed verification",
             "prior explicit user or repository authorization",
-            "cannot authorize itself",
+            "authorizing user",
+            "Agent-authored",
         ),
         CHECKPOINT_SKILL / "references" / "checkpoint-record.md": (
             "Commit",

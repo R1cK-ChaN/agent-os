@@ -83,6 +83,7 @@ scripts/verify_architecture.py                    Deterministic architecture che
 evals/run_evals.py                               Deterministic policy contract adapter tests
 evals/fixtures/                                  Synthetic policy inputs and assertions
 evals/run_forward_evals.py                       Live Codex Agent scenario runner
+evals/test_forward_eval_contract.py               Forward-harness invariant checks
 evals/forward-fixtures/                          Synthetic repositories, raw tasks, and outcomes
 ```
 
@@ -98,4 +99,4 @@ OAuth sessions, tokens, cloud secrets, project code, and project-specific domain
 
 The deterministic policy contract runner reads synthetic inputs and current plugin policy sources, then exercises focused Python adapters against named privacy, precedence, staging, authority, design, recovery, checkpoint, security, and verification contracts. These tests catch missing or contradictory policy text; they do not prove that an Agent reads or follows the Skill.
 
-The separate forward runner invokes `codex exec` against disposable synthetic repositories and raw workspace tasks. It checks the Agent's structured action order and readiness result for security-first recovery and missing-tool degradation. Forward evals require a configured Codex runtime and may vary across model versions; the harness grants writes only inside the disposable workspace while the task forbids mutation and external services. Fixtures remain secret-free and isolated from production. Neither runner is a general LLM benchmark.
+The separate forward runner invokes `codex exec` in a read-only sandbox against disposable synthetic repositories and raw workspace tasks. It requires a non-empty structured action sequence, compares repository snapshots before and after execution, and checks security-first recovery plus missing-tool degradation. Forward evals require a configured Codex runtime and may vary across model versions. Fixtures remain secret-free and isolated from production. Deterministic harness tests prevent empty-action and mutation checks from regressing. Neither runner is a general LLM benchmark.
