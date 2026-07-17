@@ -10,6 +10,7 @@ Use this checklist before a Plugin release or after changing a workflow boundary
 - Confirm Agent OS writes only managed Skill copies under the external user Skill root.
 - Point the Skill root through a symlink into the target `.git` directory and confirm bootstrap rejects it without mutation.
 - Create a linked worktree, point the Skill root at its shared common Git directory, and confirm bootstrap rejects it without adding any `agent-os-*` entry.
+- Configure `core.hooksPath` to an external directory, point the Skill root at that effective Hooks directory, and confirm bootstrap rejects it without adding any `agent-os-*` entry.
 - Force or simulate a temporary-backup cleanup failure after final validation and confirm bootstrap retains the backup, reports a cleanup warning, and does not roll back committed Skill destinations.
 - Start a new task and confirm `prepare-development-workspace` independently verifies durable state from the supplied repository and optional task identifier.
 
