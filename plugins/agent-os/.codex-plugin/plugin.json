@@ -1,6 +1,6 @@
 {
   "name": "agent-os",
-  "version": "0.1.0+codex.20260717092421",
+  "version": "0.1.0+codex.20260717105342",
   "description": "Personal, secret-safe sidecar activation, workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
   "author": {
     "name": "Agent OS"
