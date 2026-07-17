@@ -1,6 +1,6 @@
 # Agent OS architecture
 
-Agent OS is a private control-plane plugin for rebuilding a consistent development workflow in replaceable Codex environments. It stores reusable method and orchestration while durable external systems store project facts and execution state.
+Agent OS is a personal control-plane plugin for rebuilding a consistent development workflow in replaceable Codex environments. It stores reusable method and orchestration while durable external systems store project facts and execution state.
 
 ## System boundaries
 
@@ -41,6 +41,12 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 11. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
 12. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
+## Sidecar bootstrap
+
+Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, resolves the target worktree, worktree-specific Git directory, shared Git common directory, and Git's effective Hooks directory to reject symlink, linked-worktree, and external `core.hooksPath` escapes, and compares target HEAD, branch, index, worktree status, shared and worktree-local Git configuration, and the effective Hooks directory before and after activation. Bootstrap rolls back the Skill transaction if validation fails before commit. Once the final Git snapshot passes, backup cleanup is best-effort: failures retain the backup and return a warning without triggering a second rollback. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
+
+The Git repository is intentionally public under [ADR 0001](decisions/0001-public-distribution.md) and is the acquisition source. After activation, a new task runs `prepare-development-workspace` with the target repository and optional task identifier, then independently verifies GitHub, Linear, and other durable state. Successful activation is not proof of project readiness.
+
 ## Recovery protocol
 
 A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
@@ -79,7 +85,11 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   agents/openai.yaml                              Skill discovery metadata
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
-scripts/verify_privacy.py                         Private metadata and credential-artifact scan
+scripts/agent-os.mjs                              External bootstrap and read-only doctor CLI
+scripts/test_bootstrap.mjs                         Deterministic zero-pollution and lifecycle checks
+scripts/verify_privacy.py                          Private metadata and credential-artifact scan
+docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
+docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
@@ -87,7 +97,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 ## Installation model
 
-The private Git repository is the distribution source. Add it as a Codex plugin marketplace, install `agent-os`, authorize the required external systems separately, and open a new task so the installed skill metadata is loaded.
+The intentionally public Git repository is the distribution source; [ADR 0001](decisions/0001-public-distribution.md) records that repository visibility is distinct from private workflow data. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 

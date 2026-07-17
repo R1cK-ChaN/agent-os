@@ -1,30 +1,31 @@
 ---
 name: prepare-development-workspace
-description: Assess and recover a repository-backed development workspace in a fresh, ephemeral, replaced, or resumed Codex environment. Use before implementation when Codex must identify durable remote work state, repository instructions, runtimes, package managers, verification commands, tools, services, or authorization blockers without bootstrapping a universal environment or exposing secrets.
+description: Assess and recover a repository-backed development workspace in a fresh, ephemeral, replaced, or resumed Codex environment. Use after Agent OS Skill activation or before implementation when Codex must identify durable remote work state, repository instructions, required capabilities, or authorization blockers without modifying the target project's working tree or Git internals.
 ---
 
 # Prepare a development workspace
 
-Produce a bounded, evidence-based Workspace Readiness result. Discover the target repository's own development contract; do not replace it with plugin defaults.
+Produce a bounded, evidence-based Workspace Readiness result. Agent OS is an external Sidecar; the target repository owns project truth and remains read-only during bootstrap and recovery.
 
 ## Workflow
 
-1. Read [workspace-security.md](references/workspace-security.md) before any task, Git, provider, repository-artifact, log, fixture, credential, cloud-tool, or external-service inspection. Establish the safe output boundary before a remote URL, diff, diagnostic, or provider response can enter model context.
-2. Resolve the durable recovery chain under that boundary: task or explicit request, repository, default branch, linked pull request, remote branch, and latest durable commit. Prefer remote Git and pull-request state over stale local state or chat history. Sanitize Git remote evidence; never print a raw remote URL that may contain embedded credentials.
-3. Read the root and applicable nested `AGENTS.md` files, file contract headers, runtime and package-manager declarations, lockfiles, specifications, scripts, tests, fixtures, CI workflows, and smoke documentation under that safety boundary.
-4. Read [capability-discovery.md](references/capability-discovery.md), then probe only the capabilities needed for the next approved slice. Prefer read-only, low-cost checks and repository-provided commands.
-5. Classify each required capability as available, unavailable, requires authorization, or unknown. Cite concrete evidence; never infer success from a file name, tool description, or previous environment.
-6. Check secret and service prerequisites by reference or presence only. Never read or print secret values, dump the environment, copy production credentials, or claim authorization that was not observed.
-7. Read [workspace-readiness.md](references/workspace-readiness.md) and return one concise Workspace Readiness result with the recovery entry point, evidence, blockers, and next safe action.
+1. Read `references/workspace-security.md` before inspecting task, Git, provider, repository, log, fixture, credential, cloud-tool, or external-service data.
+2. Read `references/sidecar-bootstrap.md` when Agent OS was activated from a cloned public repository. Treat successful activation only as evidence that Skills were copied outside the target project, not as proof of project readiness.
+3. Resolve the durable recovery chain from the user's target repository and optional task identifier: repository, default branch, linked pull request, remote branch, and latest durable commit. Prefer remote Git and pull-request state over stale local state or chat history.
+4. Read the root and applicable nested `AGENTS.md` files, runtime declarations, lockfiles, specifications, scripts, tests, CI workflows, and smoke documentation without writing setup files, hooks, configuration, caches, or reports into the target repository.
+5. Read `references/capability-discovery.md`, then probe only capabilities needed for the next approved slice. Classify each as `available`, `unavailable`, `requires authorization`, or `unknown` using non-sensitive evidence.
+6. Check secret and service prerequisites by reference or presence only. Never read or print values, dump the environment, copy production credentials, or infer authorization.
+7. Read `references/workspace-readiness.md` and return one concise result with recovery state, capabilities, evidence, blockers, and next entry point.
 8. Stop at the readiness boundary. Ask for authorization only when the next required action needs it.
 
 ## Boundaries
 
-- Let repository commands, versions, and conventions override plugin defaults.
-- Do not automatically install large dependencies, create a devcontainer, start costly services, access production data, restructure the project, or add release machinery.
-- Do not persist the readiness report as a new source of truth. Durable code state belongs in Git and task state belongs in its approved tracker.
-- Report partial readiness honestly. Missing or ambiguous evidence is `unknown`, not success.
+- Bootstrap and recovery are read-only for the target worktree, Git internals, repository-local configuration, and hooks.
+- Do not create `.agents`, `.codex`, Agent OS locks, handoffs, reports, submodules, ignore rules, or temporary files inside the target repository.
+- Do not switch branches, stash, install dependencies, run formatters, create a devcontainer, start costly services, or restructure the project during readiness assessment.
+- Let repository commands, versions, and conventions override Plugin defaults.
+- Report partial readiness honestly. Missing evidence is `unknown`, not success.
 
 ## Stop conditions
 
-Stop with a concrete blocker when the repository or recovery entry point is ambiguous, a required capability is unavailable, authorization is required, or a safe probe cannot distinguish availability without exposing sensitive state.
+Stop with a concrete blocker when the repository or recovery entry point is ambiguous, a required capability is unavailable, authorization is required, or a safe probe cannot establish the next fact.

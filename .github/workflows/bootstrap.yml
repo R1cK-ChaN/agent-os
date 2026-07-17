@@ -1,0 +1,28 @@
+name: Bootstrap
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check scripts
+        run: |
+          node --check scripts/agent-os.mjs
+          node --check scripts/test_bootstrap.mjs
+      - name: Test bootstrap isolation
+        run: node scripts/test_bootstrap.mjs
+      - name: Verify privacy
+        run: python3 scripts/verify_privacy.py
+      - name: Check whitespace
+        run: git diff --check

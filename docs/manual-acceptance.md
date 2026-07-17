@@ -2,6 +2,18 @@
 
 Use this checklist before a Plugin release or after changing a workflow boundary. Run it against a disposable repository or a real project where the requested actions are already authorized. Do not use production credentials or data.
 
+## Sidecar bootstrap
+
+- Run `node scripts/test_bootstrap.mjs` and confirm it passes.
+- Bootstrap against both a clean disposable repository and one with staged, modified, and untracked state.
+- Confirm HEAD, branch, index, worktree status, local Git configuration, hooks, and existing dirty state are unchanged.
+- Confirm Agent OS writes only managed Skill copies under the external user Skill root.
+- Point the Skill root through a symlink into the target `.git` directory and confirm bootstrap rejects it without mutation.
+- Create a linked worktree, point the Skill root at its shared common Git directory, and confirm bootstrap rejects it without adding any `agent-os-*` entry.
+- Configure `core.hooksPath` to an external directory, point the Skill root at that effective Hooks directory, and confirm bootstrap rejects it without adding any `agent-os-*` entry.
+- Force or simulate a temporary-backup cleanup failure after final validation and confirm bootstrap retains the backup, reports a cleanup warning, and does not roll back committed Skill destinations.
+- Start a new task and confirm `prepare-development-workspace` independently verifies durable state from the supplied repository and optional task identifier.
+
 ## Workspace recovery
 
 - Start in a fresh or replaced environment with a remote branch or pull request.
