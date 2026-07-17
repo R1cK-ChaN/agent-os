@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { access, cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { constants as fsConstants } from "node:fs";
-import { homedir, tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import { access, cp, lstat, mkdir, mkdtemp, readFile, readdir, readlink, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 
@@ -13,7 +13,7 @@ const REPO_ROOT = resolve(SCRIPT_DIR, "..");
 const PLUGIN_ROOT = join(REPO_ROOT, "plugins", "agent-os");
 const SOURCE_SKILLS = join(PLUGIN_ROOT, "skills");
 const PLUGIN_MANIFEST = join(PLUGIN_ROOT, ".codex-plugin", "plugin.json");
-const SCHEMA_VERSION = 1;
+const MARKER = ".agent-os-managed.json";
 
 function parseArgs(argv) {
   const [command = "help", ...rest] = argv;
@@ -22,7 +22,7 @@ function parseArgs(argv) {
     const token = rest[index];
     if (!token.startsWith("--")) throw new Error(`Unexpected argument: ${token}`);
     const key = token.slice(2);
-    if (["check-only", "json", "force"].includes(key)) options[key] = true;
+    if (["check-only", "json"].includes(key)) options[key] = true;
     else {
       const value = rest[index + 1];
       if (!value || value.startsWith("--")) throw new Error(`Missing value for --${key}`);
@@ -33,35 +33,9 @@ function parseArgs(argv) {
   return { command, options };
 }
 
-function paths(options = {}) {
-  const home = resolve(options["agent-os-home"] || process.env.AGENT_OS_HOME || join(homedir(), ".agent-os"));
-  return {
-    home,
-    userSkills: resolve(options["skills-home"] || join(homedir(), ".agents", "skills")),
-    installation: join(home, "installation.json"),
-    handoffs: join(home, "handoffs"),
-    backups: join(home, "backups"),
-  };
-}
-
-function isWithin(parent, candidate) {
-  const base = resolve(parent);
-  const path = resolve(candidate);
-  return path === base || path.startsWith(`${base}/`) || path.startsWith(`${base}\\`);
-}
-
-async function nearestExisting(path) {
-  let current = resolve(path);
-  while (!(await exists(current))) {
-    const parent = dirname(current);
-    if (parent === current) throw new Error(`No existing parent for ${path}`);
-    current = parent;
-  }
-  return current;
-}
-
 function run(command, args, cwd, allowFailure = false) {
   const result = spawnSync(command, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  if (result.error) throw result.error;
   if (!allowFailure && result.status !== 0) {
     throw new Error(`${command} ${args.join(" ")} failed: ${result.stderr.trim() || result.stdout.trim()}`);
   }
@@ -72,25 +46,53 @@ async function exists(path) {
   try { await stat(path); return true; } catch { return false; }
 }
 
+async function nearestExisting(path) {
+  const missing = [];
+  let current = resolve(path);
+  while (!(await exists(current))) {
+    missing.unshift(basename(current));
+    const parent = dirname(current);
+    if (parent === current) throw new Error(`No existing parent for ${path}`);
+    current = parent;
+  }
+  return join(await realpath(current), ...missing);
+}
+
+function isWithin(parent, candidate) {
+  const value = relative(parent, candidate);
+  return value === "" || (!value.startsWith("..") && !isAbsolute(value));
+}
+
+async function assertExternal(target, userSkills) {
+  const targetRoot = await realpath(target);
+  const gitDirRaw = run("git", ["rev-parse", "--git-dir"], target).stdout.trim();
+  const gitRoot = await realpath(resolve(target, gitDirRaw));
+  const skillRoot = await nearestExisting(userSkills);
+  if (isWithin(targetRoot, skillRoot) || isWithin(gitRoot, skillRoot)) {
+    throw new Error("The user Skill directory must resolve outside the target repository and its Git directory");
+  }
+  return { targetRoot, gitRoot, skillRoot };
+}
+
 async function sha256(path) {
   const hash = createHash("sha256");
   hash.update(await readFile(path));
   return hash.digest("hex");
 }
 
-async function directoryDigest(root) {
-  if (!(await exists(root))) return null;
+async function directoryDigest(root, allowSymlinks = false) {
   const hash = createHash("sha256");
   async function walk(directory) {
     const entries = await readdir(directory, { withFileTypes: true });
     entries.sort((a, b) => a.name.localeCompare(b.name));
     for (const entry of entries) {
+      if (entry.name === MARKER) continue;
       const path = join(directory, entry.name);
-      const relative = path.slice(root.length + 1);
-      hash.update(relative);
+      hash.update(path.slice(root.length + 1));
       if (entry.isDirectory()) await walk(path);
       else if (entry.isFile()) hash.update(await readFile(path));
-      else if (entry.isSymbolicLink()) hash.update("symlink");
+      else if (entry.isSymbolicLink() && allowSymlinks) hash.update(await readlink(path));
+      else throw new Error(`Unsupported entry in ${root}: ${path}`);
     }
   }
   await walk(root);
@@ -105,226 +107,165 @@ async function pluginInfo() {
   const entries = await readdir(SOURCE_SKILLS, { withFileTypes: true });
   const skills = [];
   for (const entry of entries.filter((item) => item.isDirectory()).sort((a, b) => a.name.localeCompare(b.name))) {
-    const skillFile = join(SOURCE_SKILLS, entry.name, "SKILL.md");
-    if (!(await exists(skillFile))) throw new Error(`Skill ${entry.name} has no SKILL.md`);
-    const content = await readFile(skillFile, "utf8");
+    const source = join(SOURCE_SKILLS, entry.name);
+    const content = await readFile(join(source, "SKILL.md"), "utf8");
     const name = content.match(/^name:\s*([^\n]+)$/m)?.[1]?.trim();
     const description = content.match(/^description:\s*([^\n]+)$/m)?.[1]?.trim();
     if (!name || !description) throw new Error(`Skill ${entry.name} is missing name or description`);
-    skills.push({ folder: entry.name, name, source: join(SOURCE_SKILLS, entry.name), digest: await directoryDigest(join(SOURCE_SKILLS, entry.name)) });
+    skills.push({ folder: entry.name, name, source, digest: await directoryDigest(source) });
   }
   if (skills.length === 0) throw new Error("Agent OS contains no skills");
   return { manifest, skills };
 }
 
-async function scanSkillNames(userSkills) {
-  const names = new Map();
-  if (!(await exists(userSkills))) return names;
-  for (const entry of await readdir(userSkills, { withFileTypes: true })) {
-    if (!entry.isDirectory() && !entry.isSymbolicLink()) continue;
-    const file = join(userSkills, entry.name, "SKILL.md");
-    if (!(await exists(file))) continue;
-    const content = await readFile(file, "utf8");
-    const name = content.match(/^name:\s*([^\n]+)$/m)?.[1]?.trim();
-    if (name) names.set(name, join(userSkills, entry.name));
-  }
-  return names;
-}
-
 async function gitSnapshot(target) {
   const inside = run("git", ["rev-parse", "--is-inside-work-tree"], target, true);
   if (inside.status !== 0 || inside.stdout.trim() !== "true") throw new Error(`Target is not a Git worktree: ${target}`);
-  const gitDirRaw = run("git", ["rev-parse", "--git-dir"], target).stdout.trim();
-  const gitDir = resolve(target, gitDirRaw);
-  const config = join(gitDir, "config");
-  const hooks = join(gitDir, "hooks");
+  const gitDir = resolve(target, run("git", ["rev-parse", "--git-dir"], target).stdout.trim());
   return {
     head: run("git", ["rev-parse", "HEAD"], target).stdout.trim(),
     branch: run("git", ["symbolic-ref", "--quiet", "--short", "HEAD"], target, true).stdout.trim() || null,
     status: run("git", ["status", "--porcelain=v2", "--untracked-files=all"], target).stdout,
-    configDigest: (await exists(config)) ? await sha256(config) : null,
-    hooksDigest: await directoryDigest(hooks),
+    configDigest: (await exists(join(gitDir, "config"))) ? await sha256(join(gitDir, "config")) : null,
+    hooksDigest: (await exists(join(gitDir, "hooks"))) ? await directoryDigest(join(gitDir, "hooks"), true) : null,
   };
 }
 
-function sameSnapshot(before, after) {
-  return JSON.stringify(before) === JSON.stringify(after);
+async function markerFor(destination) {
+  const marker = join(destination, MARKER);
+  if (!(await exists(marker))) return null;
+  try { return JSON.parse(await readFile(marker, "utf8")); } catch { return null; }
 }
 
-async function readInstallation(location) {
-  if (!(await exists(location))) return null;
-  return JSON.parse(await readFile(location, "utf8"));
-}
-
-async function atomicJson(path, value) {
-  await mkdir(dirname(path), { recursive: true });
-  const temporary = `${path}.tmp-${process.pid}`;
-  await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
-  await rename(temporary, path);
-}
-
-async function installSkills(info, locations, checkOnly = false) {
-  const previous = await readInstallation(locations.installation);
-  const managed = new Map((previous?.managedSkills || []).map((item) => [item.name, item]));
-  const discovered = await scanSkillNames(locations.userSkills);
-  const planned = [];
+async function planSkills(info, userSkills) {
+  const plan = [];
   for (const skill of info.skills) {
-    const destination = join(locations.userSkills, `agent-os-${skill.folder}`);
-    const conflict = discovered.get(skill.name);
-    const ownedPath = managed.get(skill.name)?.destination;
-    if (await exists(destination) && resolve(ownedPath || "") !== resolve(destination)) {
+    const destination = join(userSkills, `agent-os-${skill.folder}`);
+    if (!(await exists(destination))) {
+      plan.push({ ...skill, destination, action: "install" });
+      continue;
+    }
+    const metadata = await lstat(destination);
+    if (metadata.isSymbolicLink() || !metadata.isDirectory()) throw new Error(`Refusing unsafe Skill destination: ${destination}`);
+    const currentDigest = await directoryDigest(destination);
+    const marker = await markerFor(destination);
+    if (currentDigest === skill.digest) {
+      plan.push({ ...skill, destination, action: "skip" });
+    } else if (marker?.owner === "agent-os" && marker?.skill === skill.name) {
+      plan.push({ ...skill, destination, action: "update" });
+    } else {
       throw new Error(`Refusing to overwrite unmanaged Skill destination: ${destination}`);
     }
-    if (conflict && resolve(conflict) !== resolve(destination) && resolve(conflict) !== resolve(ownedPath || destination)) {
-      throw new Error(`Skill name conflict for ${skill.name}: ${conflict}`);
-    }
-    planned.push({ ...skill, destination });
   }
-  if (checkOnly) return planned;
-  await mkdir(locations.userSkills, { recursive: true });
-  await mkdir(locations.backups, { recursive: true });
-  const installed = [];
-  for (const skill of planned) {
-    const stagingRoot = await mkdtemp(join(locations.userSkills, ".agent-os-stage-"));
-    const staged = join(stagingRoot, basename(skill.destination));
-    await cp(skill.source, staged, { recursive: true, errorOnExist: true });
-    if ((await directoryDigest(staged)) !== skill.digest) throw new Error(`Copied skill failed integrity check: ${skill.name}`);
-    let backup = null;
-    if (await exists(skill.destination)) {
-      backup = join(locations.backups, `${basename(skill.destination)}-${Date.now()}`);
-      await rename(skill.destination, backup);
-    }
-    try {
-      await rename(staged, skill.destination);
-      await rm(stagingRoot, { recursive: true, force: true });
-      if (backup) await rm(backup, { recursive: true, force: true });
-    } catch (error) {
-      if (backup && !(await exists(skill.destination))) await rename(backup, skill.destination);
-      throw error;
-    }
-    installed.push({ name: skill.name, folder: skill.folder, destination: skill.destination, digest: skill.digest });
-  }
-  return installed;
+  return plan;
 }
 
-function sanitizeRemote(remote) {
-  if (!remote) return null;
-  return remote.replace(/^(https?:\/\/)[^/@]+@/, "$1[redacted]@").replace(/[?#].*$/, "");
+async function rollback(operations) {
+  for (const operation of [...operations].reverse()) {
+    if (await exists(operation.destination)) await rm(operation.destination, { recursive: true, force: true });
+    if (operation.backup && await exists(operation.backup)) await rename(operation.backup, operation.destination);
+  }
+}
+
+async function applyPlan(plan, userSkills, pluginVersion) {
+  const operations = [];
+  try {
+    for (const skill of plan.filter((item) => item.action !== "skip")) {
+      const stagingRoot = await mkdtemp(join(userSkills, ".agent-os-stage-"));
+      const staged = join(stagingRoot, basename(skill.destination));
+      await cp(skill.source, staged, { recursive: true, errorOnExist: true });
+      await writeFile(join(staged, MARKER), `${JSON.stringify({ owner: "agent-os", skill: skill.name, pluginVersion }, null, 2)}\n`, { mode: 0o600 });
+      if (await directoryDigest(staged) !== skill.digest) throw new Error(`Copied Skill failed integrity check: ${skill.name}`);
+      let backup = null;
+      if (skill.action === "update") {
+        backup = `${skill.destination}.rollback-${process.pid}`;
+        await rename(skill.destination, backup);
+      }
+      try {
+        await rename(staged, skill.destination);
+        await rm(stagingRoot, { recursive: true, force: true });
+        operations.push({ destination: skill.destination, backup });
+      } catch (error) {
+        if (backup && !(await exists(skill.destination))) await rename(backup, skill.destination);
+        throw error;
+      }
+    }
+    return operations;
+  } catch (error) {
+    await rollback(operations);
+    throw error;
+  }
 }
 
 async function bootstrap(options) {
   const target = resolve(options.target || process.cwd());
-  const locations = paths(options);
-  if (isWithin(target, locations.home) || isWithin(target, locations.userSkills)) {
-    throw new Error("AGENT_OS_HOME and the user Skill directory must be outside the target repository");
-  }
+  const userSkills = resolve(options["skills-home"] || join(homedir(), ".agents", "skills"));
   const before = await gitSnapshot(target);
+  await assertExternal(target, userSkills);
   const info = await pluginInfo();
-  const installed = await installSkills(info, locations, Boolean(options["check-only"]));
-  const after = await gitSnapshot(target);
-  if (!sameSnapshot(before, after)) throw new Error("Bootstrap changed the target repository; inspect it before continuing");
-  const remoteResult = run("git", ["remote", "get-url", "origin"], target, true);
-  const handoff = {
-    schemaVersion: SCHEMA_VERSION,
-    createdAt: new Date().toISOString(),
-    agentOs: { version: info.manifest.version, source: REPO_ROOT },
-    target: {
-      path: target,
-      repository: options.repo || sanitizeRemote(remoteResult.status === 0 ? remoteResult.stdout.trim() : null),
-      branch: before.branch,
-      head: before.head,
-      dirty: before.status.length > 0,
-    },
-    task: { linearIssue: options.issue || null },
-    requiredCapabilities: options.issue ? ["github", "linear"] : ["github"],
-    activation: { mode: "user-skills-copy", checkOnly: Boolean(options["check-only"]), skills: installed.map((item) => item.name) },
-    projectMutationCheck: { passed: true },
-    nextAction: { skill: "prepare-development-workspace" },
-  };
-  let handoffPath = null;
-  if (!options["check-only"]) {
-    const stamp = handoff.createdAt.replace(/[:.]/g, "-");
-    handoffPath = join(locations.handoffs, `${stamp}-${basename(target)}.json`);
-    await atomicJson(handoffPath, handoff);
-    await atomicJson(locations.installation, {
-      schemaVersion: SCHEMA_VERSION,
-      plugin: "agent-os",
-      pluginVersion: info.manifest.version,
-      source: REPO_ROOT,
-      installedAt: handoff.createdAt,
-      managedSkills: installed,
-    });
+  const plan = await planSkills(info, userSkills);
+  if (options["check-only"]) return { ok: true, command: "bootstrap", checkOnly: true, plan: plan.map(({ name, action }) => ({ name, action })) };
+
+  await mkdir(userSkills, { recursive: true });
+  await assertExternal(target, await realpath(userSkills));
+  const operations = await applyPlan(plan, userSkills, info.manifest.version);
+  try {
+    await assertExternal(target, await realpath(userSkills));
+    const after = await gitSnapshot(target);
+    if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error("Bootstrap changed the target repository");
+    for (const operation of operations) if (operation.backup) await rm(operation.backup, { recursive: true, force: true });
+  } catch (error) {
+    await rollback(operations);
+    throw error;
   }
-  return { ok: true, command: "bootstrap", handoffPath, handoff };
+
+  return {
+    ok: true,
+    command: "bootstrap",
+    pluginVersion: info.manifest.version,
+    target,
+    projectMutationCheck: { passed: true },
+    skills: plan.map(({ name, action }) => ({ name, action })),
+  };
 }
 
 async function doctor(options) {
   const target = resolve(options.target || process.cwd());
-  const locations = paths(options);
+  const userSkills = resolve(options["skills-home"] || join(homedir(), ".agents", "skills"));
   const checks = [];
   const check = async (name, operation) => {
-    try { const detail = await operation(); checks.push({ name, status: "available", detail }); }
+    try { checks.push({ name, status: "available", detail: await operation() }); }
     catch (error) { checks.push({ name, status: "unavailable", detail: error.message }); }
   };
   await check("plugin", async () => `${(await pluginInfo()).skills.length} skills`);
   await check("target-git", async () => (await gitSnapshot(target)).head);
-  await check("user-skills-parent", async () => {
-    const parent = await nearestExisting(locations.userSkills);
+  await check("external-skill-root", async () => {
+    const boundary = await assertExternal(target, userSkills);
+    const parent = await nearestExisting(boundary.skillRoot);
     await access(parent, fsConstants.W_OK);
-    return parent;
+    return boundary.skillRoot;
   });
-  await check("installation", async () => (await readInstallation(locations.installation))?.pluginVersion || "not installed");
   return { ok: checks.every((item) => item.status === "available"), command: "doctor", checks };
 }
 
-async function status(options) {
-  const locations = paths(options);
-  const installation = await readInstallation(locations.installation);
-  return { ok: Boolean(installation), command: "status", installation };
-}
-
-async function uninstall(options) {
-  const locations = paths(options);
-  const installation = await readInstallation(locations.installation);
-  if (!installation) return { ok: true, command: "uninstall", removed: [] };
-  const removed = [];
-  for (const skill of installation.managedSkills || []) {
-    if (!(await exists(skill.destination))) continue;
-    const current = await directoryDigest(skill.destination);
-    if (current !== skill.digest && !options.force) {
-      throw new Error(`Managed skill changed since installation; refusing to remove ${skill.destination}`);
-    }
-    await rm(skill.destination, { recursive: true, force: true });
-    removed.push(skill.destination);
-  }
-  await rm(locations.installation, { force: true });
-  return { ok: true, command: "uninstall", removed };
-}
-
 function help() {
-  return {
-    ok: true,
-    usage: [
-      "node scripts/agent-os.mjs bootstrap --target <git-worktree> [--issue TEAM-123] [--check-only]",
-      "node scripts/agent-os.mjs doctor --target <git-worktree>",
-      "node scripts/agent-os.mjs status",
-      "node scripts/agent-os.mjs uninstall [--force]",
-    ],
-  };
+  return { ok: true, usage: [
+    "node scripts/agent-os.mjs bootstrap --target <git-worktree> [--check-only]",
+    "node scripts/agent-os.mjs doctor --target <git-worktree>",
+  ] };
 }
 
 function print(result, json) {
-  if (json) { process.stdout.write(`${JSON.stringify(result, null, 2)}\n`); return; }
-  if (result.command === "bootstrap") {
-    console.log("Agent OS bootstrap completed without changing the target repository.");
-    if (result.handoffPath) console.log(`Handoff: ${result.handoffPath}`);
-    console.log("Start a new Codex task and use prepare-development-workspace to recover from this handoff.");
+  if (json) return process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  if (result.command === "bootstrap" && !result.checkOnly) {
+    console.log("Agent OS Skills activated without changing the target repository.");
+    console.log("Start a new Codex task and use prepare-development-workspace with the target repository and task identifier.");
   } else console.log(JSON.stringify(result, null, 2));
 }
 
 try {
   const { command, options } = parseArgs(process.argv.slice(2));
-  const actions = { bootstrap, doctor, status, uninstall, help };
+  const actions = { bootstrap, doctor, help };
   if (!actions[command]) throw new Error(`Unknown command: ${command}`);
   const result = await actions[command](options);
   print(result, options.json);
