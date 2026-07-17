@@ -56,4 +56,14 @@ const removed = JSON.parse(run("node", [CLI, "uninstall", "--agent-os-home", run
 assert.equal(removed.ok, true);
 assert.equal(removed.removed.length, installation.managedSkills.length);
 
+const rejected = spawnSync("node", [CLI, "bootstrap", "--target", project, "--agent-os-home", join(project, ".agent-os"), "--skills-home", skillsHome], { cwd: ROOT, env: { ...process.env, HOME: home }, encoding: "utf8" });
+assert.notEqual(rejected.status, 0);
+assert.match(rejected.stderr, /must be outside the target repository/);
+
+await mkdir(join(skillsHome, "agent-os-prepare-development-workspace"), { recursive: true });
+await writeFile(join(skillsHome, "agent-os-prepare-development-workspace", "SKILL.md"), "---\nname: prepare-development-workspace\ndescription: Unmanaged fixture.\n---\n");
+const conflict = spawnSync("node", [CLI, "bootstrap", "--target", project, "--agent-os-home", runtime, "--skills-home", skillsHome], { cwd: ROOT, env: { ...process.env, HOME: home }, encoding: "utf8" });
+assert.notEqual(conflict.status, 0);
+assert.match(conflict.stderr, /Refusing to overwrite unmanaged Skill destination/);
+
 console.log("Bootstrap tests passed.");
