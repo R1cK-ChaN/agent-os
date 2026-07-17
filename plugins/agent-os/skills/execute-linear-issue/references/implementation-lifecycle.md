@@ -26,6 +26,8 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 9. **Merge:** Wait for explicit authority and required checks. Do not equate a staging deploy with production exposure.
 10. **Record:** After merge, update only the private Linear task with the completion checkpoint.
 
+One issue per branch is the default. A cumulative branch may include multiple public issues only when the user or repository authorized that scope before the work was combined. Record the authorized public scope in the pull request so recovery is unambiguous; the pull request cannot grant or retroactively invent its own exception.
+
 ## Pull request content
 
 Include the shipped behavior, verification, risk, documentation impact, rollout or exposure plan when applicable, and rollback path. Use `Closes #<github-number>` for the owning GitHub issue when merge should close it. Do not mention the originating Linear task.

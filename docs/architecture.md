@@ -80,8 +80,10 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
 scripts/verify_architecture.py                    Deterministic architecture checks
-evals/run_evals.py                               Behavior-contract scenario runner
-evals/fixtures/                                  Synthetic decision traces and assertions
+evals/run_evals.py                               Deterministic policy contract adapter tests
+evals/fixtures/                                  Synthetic policy inputs and assertions
+evals/run_forward_evals.py                       Live Codex Agent scenario runner
+evals/forward-fixtures/                          Synthetic repositories, raw tasks, and outcomes
 ```
 
 Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path.
@@ -92,6 +94,8 @@ The private Git repository is the distribution source. Add it as a Codex plugin 
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 
-## Behavior evaluation
+## Evaluation boundary
 
-The local behavior runner derives decisions from synthetic scenario inputs and the current plugin policy sources, then evaluates them against named privacy, precedence, staging, authority, design, recovery, checkpoint, security, and verification contracts. Fixtures cannot author their own observed decision. The runner uses focused policy adapters and generic assertions, performs no network or production action, and is not a general LLM benchmark.
+The deterministic policy contract runner reads synthetic inputs and current plugin policy sources, then exercises focused Python adapters against named privacy, precedence, staging, authority, design, recovery, checkpoint, security, and verification contracts. These tests catch missing or contradictory policy text; they do not prove that an Agent reads or follows the Skill.
+
+The separate forward runner invokes `codex exec` against disposable synthetic repositories and raw workspace tasks. It checks the Agent's structured action order and readiness result for security-first recovery and missing-tool degradation. Forward evals require a configured Codex runtime and may vary across model versions; the harness grants writes only inside the disposable workspace while the task forbids mutation and external services. Fixtures remain secret-free and isolated from production. Neither runner is a general LLM benchmark.

@@ -9,8 +9,8 @@ Produce a bounded, evidence-based Workspace Readiness result. Discover the targe
 
 ## Workflow
 
-1. Resolve the durable recovery chain: task or explicit request, repository, default branch, linked pull request, remote branch, and latest durable commit. Prefer remote Git and pull-request state over stale local state or chat history.
-2. Read [workspace-security.md](references/workspace-security.md) before reading repository artifacts or inspecting secret references, logs, fixtures, credentials, cloud tools, or external services.
+1. Read [workspace-security.md](references/workspace-security.md) before any task, Git, provider, repository-artifact, log, fixture, credential, cloud-tool, or external-service inspection. Establish the safe output boundary before a remote URL, diff, diagnostic, or provider response can enter model context.
+2. Resolve the durable recovery chain under that boundary: task or explicit request, repository, default branch, linked pull request, remote branch, and latest durable commit. Prefer remote Git and pull-request state over stale local state or chat history. Sanitize Git remote evidence; never print a raw remote URL that may contain embedded credentials.
 3. Read the root and applicable nested `AGENTS.md` files, file contract headers, runtime and package-manager declarations, lockfiles, specifications, scripts, tests, fixtures, CI workflows, and smoke documentation under that safety boundary.
 4. Read [capability-discovery.md](references/capability-discovery.md), then probe only the capabilities needed for the next approved slice. Prefer read-only, low-cost checks and repository-provided commands.
 5. Classify each required capability as available, unavailable, requires authorization, or unknown. Cite concrete evidence; never infer success from a file name, tool description, or previous environment.

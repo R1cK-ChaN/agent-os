@@ -1,11 +1,16 @@
 {
-  "name": "private task marker is rejected from GitHub output",
+  "name": "private task identifier and tracker URL are rejected from GitHub output",
   "contract": "github-privacy",
   "input": {
     "destination": "github_pull_request",
-    "candidate_text": "Implementation for private-task://synthetic-123"
+    "candidate_text_parts": [
+      "Implementation for A",
+      "OS-123 from https://",
+      "linear",
+      ".app/synthetic/team/task"
+    ]
   },
   "assertions": [
-    {"path": "observed.published_text", "operator": "not_contains", "value": "private-task://"}
+    {"path": "observed.published_text", "operator": "equals", "value": "[rejected private task metadata]"}
   ]
 }

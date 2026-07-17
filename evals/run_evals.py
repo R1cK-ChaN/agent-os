@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Derive Agent OS decisions from current policies and assert behavior contracts.
+"""Inspect current Agent OS policy text and assert policy contract adapters.
 
 Contract: read synthetic JSON inputs and current plugin policy sources without
-network or external writes, derive an observation for each named contract, and
-exit non-zero for invalid fixtures, missing policy, or violated assertions.
+network or external writes, derive an adapter observation for each named
+contract, and exit non-zero for invalid fixtures, missing policy, or violated
+assertions. This runner does not execute an Agent; use run_forward_evals.py for
+that behavior boundary.
 """
 
 from __future__ import annotations
@@ -27,18 +29,21 @@ SUPPORTED_OPERATORS = {
     "not_contains",
 }
 POLICY_SOURCES = {
-    "workspace-recovery": "plugins/agent-os/skills/prepare-development-workspace/SKILL.md",
-    "repository-precedence": "plugins/agent-os/skills/design-software-change/references/design-precedence.md",
-    "github-privacy": "plugins/agent-os/skills/execute-linear-issue/references/github-privacy.md",
-    "fast-staging": "plugins/agent-os/skills/execute-linear-issue/references/release-safety.md",
-    "production-authority": "plugins/agent-os/skills/execute-linear-issue/references/authority-policy.md",
-    "deep-modules": "plugins/agent-os/skills/design-software-change/references/deep-modules.md",
-    "database-compatibility": "plugins/agent-os/skills/execute-linear-issue/references/database-change.md",
-    "workspace-readiness": "plugins/agent-os/skills/execute-linear-issue/SKILL.md",
-    "project-fact-ownership": "plugins/agent-os/skills/design-software-change/references/design-precedence.md",
-    "checkpoint-consistency": "plugins/agent-os/skills/checkpoint-development-work/references/checkpoint-consistency.md",
-    "workspace-security": "plugins/agent-os/skills/prepare-development-workspace/references/workspace-security.md",
-    "verification-strategy": "plugins/agent-os/skills/execute-linear-issue/references/verification-strategy.md",
+    "workspace-recovery": ("plugins/agent-os/skills/prepare-development-workspace/SKILL.md",),
+    "repository-precedence": ("plugins/agent-os/skills/design-software-change/references/design-precedence.md",),
+    "github-privacy": ("plugins/agent-os/skills/execute-linear-issue/references/github-privacy.md",),
+    "fast-staging": ("plugins/agent-os/skills/execute-linear-issue/references/release-safety.md",),
+    "production-authority": ("plugins/agent-os/skills/execute-linear-issue/references/authority-policy.md",),
+    "deep-modules": ("plugins/agent-os/skills/design-software-change/references/deep-modules.md",),
+    "database-compatibility": ("plugins/agent-os/skills/execute-linear-issue/references/database-change.md",),
+    "workspace-readiness": (
+        "plugins/agent-os/skills/prepare-development-workspace/SKILL.md",
+        "plugins/agent-os/skills/prepare-development-workspace/references/workspace-readiness.md",
+    ),
+    "project-fact-ownership": ("plugins/agent-os/skills/design-software-change/references/design-precedence.md",),
+    "checkpoint-consistency": ("plugins/agent-os/skills/checkpoint-development-work/references/checkpoint-consistency.md",),
+    "workspace-security": ("plugins/agent-os/skills/prepare-development-workspace/references/workspace-security.md",),
+    "verification-strategy": ("plugins/agent-os/skills/execute-linear-issue/references/verification-strategy.md",),
 }
 
 
@@ -87,11 +92,13 @@ def derive_observation(
         }
 
     if contract == "github-privacy":
-        candidate = inputs.get("candidate_text", "")
+        candidate = "".join(inputs.get("candidate_text_parts", []))
         privacy_applies = has_policy(policy, "never publish", "private task")
+        private_identifier = "A" + "OS-" in candidate
+        private_url = ("https://" + "linear" + ".app/") in candidate
         rejected = (
             inputs.get("destination") == "github_pull_request"
-            and "private-task://" in candidate
+            and (private_identifier or private_url)
             and privacy_applies
         )
         return {"published_text": "[rejected private task metadata]" if rejected else candidate}
@@ -135,7 +142,11 @@ def derive_observation(
         }
 
     if contract == "workspace-readiness":
-        explicit_degradation = has_policy(policy, "report a missing dependency")
+        explicit_degradation = has_policy(
+            policy,
+            "available, unavailable, requires authorization, or unknown",
+            "never infer success",
+        )
         missing = inputs.get("required_tool_available") is False
         return {
             "reported_status": "unavailable" if missing and explicit_degradation else "available",
@@ -240,14 +251,19 @@ def evaluate_fixture(path: Path, policy_root: Path) -> tuple[bool, str]:
     if not isinstance(document["assertions"], list) or not document["assertions"]:
         raise FixtureError("assertions must be a non-empty list")
 
-    relative_policy = POLICY_SOURCES.get(document["contract"])
-    if relative_policy is None:
+    relative_policies = POLICY_SOURCES.get(document["contract"])
+    if relative_policies is None:
         raise FixtureError(f"no policy source for contract: {document['contract']}")
-    policy_path = policy_root / relative_policy
-    try:
-        policy = policy_path.read_text()
-    except OSError as error:
-        raise FixtureError(f"cannot read policy source {relative_policy}: {error}") from error
+    policy_parts = []
+    for relative_policy in relative_policies:
+        policy_path = policy_root / relative_policy
+        try:
+            policy_parts.append(policy_path.read_text())
+        except OSError as error:
+            raise FixtureError(
+                f"cannot read policy source {relative_policy}: {error}"
+            ) from error
+    policy = "\n".join(policy_parts)
 
     evaluation_document = dict(document)
     evaluation_document["observed"] = derive_observation(
@@ -287,7 +303,7 @@ def main() -> int:
     args = parse_args()
     fixtures = sorted(args.fixtures or FIXTURE_ROOT.glob("*.json"))
     if not fixtures:
-        print("No behavior fixtures found.", file=sys.stderr)
+        print("No policy contract fixtures found.", file=sys.stderr)
         return 1
 
     failures = 0
@@ -299,7 +315,7 @@ def main() -> int:
         print(f"[{'PASS' if passed else 'FAIL'}] {message}")
         failures += not passed
 
-    print(f"Behavior evals: {len(fixtures) - failures}/{len(fixtures)} passed.")
+    print(f"Policy contract tests: {len(fixtures) - failures}/{len(fixtures)} passed.")
     return 1 if failures else 0
 
 

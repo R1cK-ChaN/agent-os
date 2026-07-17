@@ -17,6 +17,8 @@ Redact sensitive request fields before logging. Keep logs focused on operation, 
 
 Treat command lines as output surfaces: avoid embedding secret values in arguments, shell history, process listings, error messages, or copied diagnostics. Report only the missing reference, environment, and authorization action needed.
 
+Treat Git metadata and diffs as potentially sensitive input. Before displaying a remote, inspect it through a credential-safe method or redact user-info and query credentials; do not print a raw remote URL. Before displaying a patch, inspect file names and status, exclude environment files, credential stores, private keys, and other sensitive paths, then read only the screened diff. A repository ignore rule is helpful evidence, not proof that tracked content is safe.
+
 ## Authority
 
 Ordinary workspace inspection may establish presence without reading a value. Require explicit authority before rotating credentials, changing IAM or access control, downloading production secrets, accessing production data, or mutating external resources. A missing credential is a readiness blocker, not permission to create one.
