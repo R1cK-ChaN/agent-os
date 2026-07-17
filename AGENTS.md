@@ -1,6 +1,6 @@
 # Agent OS repository map
 
-This repository distributes a private, installable Agent OS workflow. It contains reusable cross-project delivery and design methods, not project-specific product knowledge or credentials.
+This intentionally public repository distributes an installable Agent OS workflow for personal development. It contains reusable cross-project delivery and design methods, not project-specific product knowledge or credentials.
 
 ## Source of truth
 
@@ -10,8 +10,9 @@ This repository distributes a private, installable Agent OS workflow. It contain
 - `plugins/agent-os/skills/execute-linear-issue/references/verification-strategy.md` owns risk-scaled verification depth.
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
 - `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
+- `docs/decisions/` records architecture decisions, including the distinction between public distribution and private workflow data.
 - `docs/manual-acceptance.md` owns the small, human-run workflow acceptance checklist.
-- `docs/bootstrap.md` and `scripts/agent-os.mjs` own project-external Sidecar activation, canonical path isolation, transactional rollback, and zero-mutation checks.
+- `docs/bootstrap.md` and `scripts/agent-os.mjs` own project-external Sidecar activation, canonical worktree and shared-Git isolation, pre-commit transactional rollback, post-commit cleanup warnings, and zero-mutation checks.
 - A target repository owns its code, domain language, business rules, schemas, API contracts, framework conventions, specifications, verification commands, and local `AGENTS.md` guidance.
 - Linear owns private task state and completion evidence. GitHub owns implementation history.
 
