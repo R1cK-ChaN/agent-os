@@ -6,9 +6,9 @@ Agent OS is a private control-plane plugin for rebuilding a consistent developme
 
 | Concern | Source of truth |
 | --- | --- |
-| Cross-project method, privacy, and authority | Agent OS plugin |
+| Cross-project delivery and design method, privacy, and authority | Agent OS plugin |
 | Private task, decisions, blockers, and completion evidence | Linear |
-| Code, specifications, repository rules, commits, and pull requests | GitHub repository |
+| Code, domain language, business rules, schemas, API contracts, specifications, repository rules, commits, and pull requests | GitHub repository |
 | Authorized external actions | Connector, MCP, or provider CLI |
 | Runtime data, deployment, and secrets | Cloud provider |
 | Temporary editing and verification | Codex environment |
@@ -16,7 +16,8 @@ Agent OS is a private control-plane plugin for rebuilding a consistent developme
 ```mermaid
 flowchart LR
     L[Private Linear task] --> O[Agent OS workflow]
-    O --> G[GitHub repository work]
+    O --> D[Portable design method]
+    D --> G[GitHub repository work]
     G --> P[Merged pull request]
     P --> L
     R[Repository AGENTS.md and specs] --> O
@@ -29,14 +30,15 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 1. Start from a Linear issue.
 2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
-3. Load repository-local instructions, specifications, tests, and smoke paths.
+3. Load repository-local instructions, domain context, specifications, contracts, tests, and smoke paths.
 4. Create an issue-scoped GitHub branch without private task metadata.
-5. Implement Red-Green-Refactor-Verify slices.
-6. Review, commit, push, and open a GitHub pull request with scope-first naming.
-7. Wait for required checks and merge authority.
-8. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
-9. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
-10. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
+5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch.
+6. Implement Red-Green-Refactor-Verify slices.
+7. Review, commit, push, and open a GitHub pull request with scope-first naming.
+8. Wait for required checks and merge authority.
+9. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
+10. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
+11. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
 ## Recovery protocol
 
@@ -58,6 +60,14 @@ plugins/agent-os/skills/execute-linear-issue/     End-to-end orchestration skill
   references/issue-contract.md                    Scope authority and projection
   references/living-map.md                        Code and documentation synchronization
   references/release-safety.md                    Fast staging and production exposure
+plugins/agent-os/skills/design-software-change/   Cross-project software design skill
+  agents/openai.yaml                              Skill discovery metadata
+  references/design-precedence.md                 Plugin method and project-truth boundary
+  references/deep-modules.md                      Module depth and complexity containment
+  references/naming-and-types.md                   Semantic naming and type guidance
+  references/domain-modeling.md                    Domain language, invariants, and ownership
+  references/database-design.md                    Durable data-model design
+  references/api-design.md                         Callable-boundary and contract design
 scripts/verify_architecture.py                    Deterministic architecture checks
 ```
 
@@ -67,4 +77,4 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 The private Git repository is the distribution source. Add it as a Codex plugin marketplace, install `agent-os`, authorize the required external systems separately, and open a new task so the installed skill metadata is loaded.
 
-OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin.
+OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.

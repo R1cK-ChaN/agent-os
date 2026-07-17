@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "agent-os"
 SKILL = PLUGIN / "skills" / "execute-linear-issue"
+DESIGN_SKILL = PLUGIN / "skills" / "design-software-change"
 
 REQUIRED_FILES = (
     ROOT / ".agents" / "plugins" / "marketplace.json",
@@ -29,6 +30,14 @@ REQUIRED_FILES = (
     SKILL / "references" / "issue-contract.md",
     SKILL / "references" / "living-map.md",
     SKILL / "references" / "release-safety.md",
+    DESIGN_SKILL / "SKILL.md",
+    DESIGN_SKILL / "agents" / "openai.yaml",
+    DESIGN_SKILL / "references" / "api-design.md",
+    DESIGN_SKILL / "references" / "database-design.md",
+    DESIGN_SKILL / "references" / "deep-modules.md",
+    DESIGN_SKILL / "references" / "design-precedence.md",
+    DESIGN_SKILL / "references" / "domain-modeling.md",
+    DESIGN_SKILL / "references" / "naming-and-types.md",
 )
 
 
@@ -84,6 +93,37 @@ def main() -> int:
         SKILL / "SKILL.md": (
             "smallest representative staging smoke",
             "Do not invent a new gate",
+            "design-software-change",
+        ),
+        DESIGN_SKILL / "SKILL.md": (
+            "project-specific facts",
+            "Deep Modules",
+            "before implementation",
+        ),
+        DESIGN_SKILL / "references" / "design-precedence.md": (
+            "The plugin owns reusable judgment",
+            "The target repository owns project truth",
+        ),
+        DESIGN_SKILL / "references" / "deep-modules.md": (
+            "information hiding",
+            "deletion test",
+            "pass-through",
+        ),
+        DESIGN_SKILL / "references" / "naming-and-types.md": (
+            "semantic consistency",
+            "repository tooling",
+        ),
+        DESIGN_SKILL / "references" / "domain-modeling.md": (
+            "bounded context",
+            "invariants",
+        ),
+        DESIGN_SKILL / "references" / "database-design.md": (
+            "constraints",
+            "data ownership",
+        ),
+        DESIGN_SKILL / "references" / "api-design.md": (
+            "idempotency",
+            "error semantics",
         ),
     }
     for path, required_phrases in policy_requirements.items():
@@ -97,12 +137,20 @@ def main() -> int:
     skill_path = SKILL / "SKILL.md"
     if skill_path.is_file():
         skill_content = skill_path.read_text()
+        normalized_skill = skill_content.lower()
         implementation_marker = "implement one small slice"
         for policy_marker in ("[living-map.md]", "[release-safety.md]", "[database-change.md]"):
-            if skill_content.find(policy_marker) > skill_content.find(implementation_marker):
+            if normalized_skill.find(policy_marker.lower()) > normalized_skill.find(implementation_marker):
                 fail(f"SKILL.md must load {policy_marker} before implementation", failures)
         if "pre-authorized by the repository workflow or explicitly approved" not in skill_content:
             fail("SKILL.md must constrain staging deployment authority", failures)
+        design_marker = normalized_skill.find("design-software-change")
+        implementation_position = normalized_skill.find(implementation_marker)
+        if design_marker == -1 or implementation_position == -1 or design_marker > implementation_position:
+            fail("SKILL.md must route non-trivial design before implementation", failures)
+        branch_position = normalized_skill.find("create one issue-scoped branch")
+        if branch_position == -1 or design_marker == -1 or branch_position > design_marker:
+            fail("SKILL.md must create the issue branch before persisting design", failures)
 
     text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     placeholder = re.compile(r"\[TODO:|\bTODO\b")

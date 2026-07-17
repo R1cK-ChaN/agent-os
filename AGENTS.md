@@ -1,13 +1,13 @@
 # Agent OS repository map
 
-This repository distributes a private, installable Agent OS workflow. It contains reusable cross-project process, not project-specific product knowledge or credentials.
+This repository distributes a private, installable Agent OS workflow. It contains reusable cross-project delivery and design methods, not project-specific product knowledge or credentials.
 
 ## Source of truth
 
 - `plugins/agent-os/` owns the installable plugin and reusable skills.
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
 - `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
-- A target repository owns its code, specifications, verification commands, and local `AGENTS.md` guidance.
+- A target repository owns its code, domain language, business rules, schemas, API contracts, framework conventions, specifications, verification commands, and local `AGENTS.md` guidance.
 - Linear owns private task state and completion evidence. GitHub owns implementation history.
 
 ## Working rules
@@ -19,6 +19,7 @@ This repository distributes a private, installable Agent OS workflow. It contain
 - Use `gh` as the primary GitHub interface.
 - Never commit credentials, OAuth state, environment files, or invented connector identifiers.
 - Keep ordinary staging integration enabled and fast. Add release gates only for a concrete risk, an existing repository requirement, or an explicit user request.
+- Apply the design Skill before implementing changes to domain language, invariants, module boundaries, public interfaces, persistent data, or architecture. Keep reusable judgment in the plugin and concrete project truth in the target repository.
 
 ## Verification
 
