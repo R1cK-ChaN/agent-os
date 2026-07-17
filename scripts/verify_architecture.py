@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "agent-os"
 SKILL = PLUGIN / "skills" / "execute-linear-issue"
 DESIGN_SKILL = PLUGIN / "skills" / "design-software-change"
+WORKSPACE_SKILL = PLUGIN / "skills" / "prepare-development-workspace"
 
 REQUIRED_FILES = (
     ROOT / ".agents" / "plugins" / "marketplace.json",
@@ -38,6 +39,10 @@ REQUIRED_FILES = (
     DESIGN_SKILL / "references" / "design-precedence.md",
     DESIGN_SKILL / "references" / "domain-modeling.md",
     DESIGN_SKILL / "references" / "naming-and-types.md",
+    WORKSPACE_SKILL / "SKILL.md",
+    WORKSPACE_SKILL / "agents" / "openai.yaml",
+    WORKSPACE_SKILL / "references" / "capability-discovery.md",
+    WORKSPACE_SKILL / "references" / "workspace-readiness.md",
 )
 
 
@@ -113,6 +118,25 @@ def main() -> int:
             "semantic consistency",
             "repository tooling",
         ),
+        WORKSPACE_SKILL / "SKILL.md": (
+            "Workspace Readiness",
+            "available, unavailable, requires authorization, or unknown",
+            "recovery entry point",
+            "Never read or print secret values",
+        ),
+        WORKSPACE_SKILL / "references" / "capability-discovery.md": (
+            "install",
+            "test",
+            "lint",
+            "typecheck",
+            "build",
+            "smoke",
+        ),
+        WORKSPACE_SKILL / "references" / "workspace-readiness.md": (
+            "Evidence",
+            "Blockers",
+            "Next entry point",
+        ),
         DESIGN_SKILL / "references" / "domain-modeling.md": (
             "bounded context",
             "invariants",
@@ -151,6 +175,12 @@ def main() -> int:
         branch_position = normalized_skill.find("create one issue-scoped branch")
         if branch_position == -1 or design_marker == -1 or branch_position > design_marker:
             fail("SKILL.md must create the issue branch before persisting design", failures)
+        workspace_marker = normalized_skill.find("prepare-development-workspace")
+        if workspace_marker == -1 or branch_position == -1 or workspace_marker > branch_position:
+            fail("SKILL.md must prepare workspace before creating the issue branch", failures)
+        resume_position = normalized_skill.find("## resume interrupted work")
+        if resume_position == -1 or "prepare-development-workspace" not in normalized_skill[resume_position:]:
+            fail("SKILL.md must route interrupted recovery through workspace preparation", failures)
 
     text_files = [path for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts]
     placeholder = re.compile(r"\[TODO:|\bTODO\b")
