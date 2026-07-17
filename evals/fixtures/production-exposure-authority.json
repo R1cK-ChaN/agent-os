@@ -1,0 +1,16 @@
+{
+  "name": "production exposure requires explicit authority",
+  "contract": "production-authority",
+  "input": {
+    "environment": "production"
+  },
+  "observed": {
+    "expose_to_users": true,
+    "explicit_authority": false
+  },
+  "assertions": [
+    {"path": "observed.expose_to_users", "operator": "is_false"},
+    {"path": "observed.explicit_authority", "operator": "is_true"}
+  ],
+  "expected_contract_result": "fail"
+}

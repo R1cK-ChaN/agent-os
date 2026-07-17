@@ -1,0 +1,17 @@
+{
+  "name": "fresh VM resumes from durable remote state",
+  "contract": "workspace-recovery",
+  "input": {
+    "environment": "replaced",
+    "remote_branch_available": true
+  },
+  "observed": {
+    "recovery_source": "remote_git",
+    "requires_chat_history": false
+  },
+  "assertions": [
+    {"path": "observed.recovery_source", "operator": "equals", "value": "remote_git"},
+    {"path": "observed.requires_chat_history", "operator": "is_false"}
+  ],
+  "expected_contract_result": "pass"
+}

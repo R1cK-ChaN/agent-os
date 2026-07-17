@@ -1,0 +1,19 @@
+{
+  "name": "reference-only change uses proportional verification",
+  "contract": "verification-strategy",
+  "input": {
+    "change_surface": "skill_reference",
+    "runtime_behavior_changed": false
+  },
+  "observed": {
+    "targeted_static_check": true,
+    "full_suite": false,
+    "staging": false
+  },
+  "assertions": [
+    {"path": "observed.targeted_static_check", "operator": "is_true"},
+    {"path": "observed.full_suite", "operator": "is_false"},
+    {"path": "observed.staging", "operator": "is_false"}
+  ],
+  "expected_contract_result": "pass"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "missing tool degrades explicitly",
+  "contract": "workspace-readiness",
+  "input": {
+    "required_tool_available": false
+  },
+  "observed": {
+    "reported_status": "unavailable",
+    "claimed_success": false
+  },
+  "assertions": [
+    {"path": "observed.reported_status", "operator": "equals", "value": "unavailable"},
+    {"path": "observed.claimed_success", "operator": "is_false"}
+  ],
+  "expected_contract_result": "pass"
+}

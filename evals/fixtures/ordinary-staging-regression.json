@@ -1,0 +1,17 @@
+{
+  "name": "ordinary staging rejects production rollout gates",
+  "contract": "fast-staging",
+  "input": {
+    "environment": "staging",
+    "unsafe_side_effect": false
+  },
+  "observed": {
+    "enabled": false,
+    "release_controls": ["manual_gate"]
+  },
+  "assertions": [
+    {"path": "observed.enabled", "operator": "is_true"},
+    {"path": "observed.release_controls", "operator": "is_empty"}
+  ],
+  "expected_contract_result": "fail"
+}

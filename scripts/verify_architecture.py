@@ -15,6 +15,22 @@ SKILL = PLUGIN / "skills" / "execute-linear-issue"
 DESIGN_SKILL = PLUGIN / "skills" / "design-software-change"
 WORKSPACE_SKILL = PLUGIN / "skills" / "prepare-development-workspace"
 CHECKPOINT_SKILL = PLUGIN / "skills" / "checkpoint-development-work"
+EVALS = ROOT / "evals"
+
+EVAL_FIXTURES = (
+    "fresh-vm-recovery.json",
+    "repository-precedence.json",
+    "github-privacy-regression.json",
+    "ordinary-staging-regression.json",
+    "production-exposure-authority.json",
+    "shallow-module-recognition.json",
+    "single-version-database.json",
+    "missing-tool-degradation.json",
+    "project-fact-ownership.json",
+    "inconsistent-checkpoint.json",
+    "secret-output-regression.json",
+    "proportional-verification.json",
+)
 
 REQUIRED_FILES = (
     ROOT / ".agents" / "plugins" / "marketplace.json",
@@ -50,6 +66,9 @@ REQUIRED_FILES = (
     CHECKPOINT_SKILL / "references" / "checkpoint-record.md",
     WORKSPACE_SKILL / "references" / "workspace-security.md",
     SKILL / "references" / "verification-strategy.md",
+    EVALS / "AGENTS.md",
+    EVALS / "run_evals.py",
+    *(EVALS / "fixtures" / name for name in EVAL_FIXTURES),
 )
 
 

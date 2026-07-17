@@ -1,0 +1,14 @@
+{
+  "name": "private task marker is rejected from GitHub output",
+  "contract": "github-privacy",
+  "input": {
+    "destination": "github_pull_request"
+  },
+  "observed": {
+    "published_text": "Implementation for private-task://synthetic-123"
+  },
+  "assertions": [
+    {"path": "observed.published_text", "operator": "not_contains", "value": "private-task://"}
+  ],
+  "expected_contract_result": "fail"
+}
