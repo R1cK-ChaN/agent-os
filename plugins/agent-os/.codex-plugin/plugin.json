@@ -1,14 +1,14 @@
 {
   "name": "agent-os",
-  "version": "0.1.0+codex.20260717074932",
-  "description": "Private, secret-safe sidecar activation, workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
+  "version": "0.1.0+codex.20260717092421",
+  "description": "Personal, secret-safe sidecar activation, workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
   "author": {
     "name": "Agent OS"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent OS",
-    "shortDescription": "Design and deliver private software tasks safely.",
+    "shortDescription": "Design and deliver personal software workflows safely.",
     "longDescription": "Activate personal Skills outside target repositories, recover secret-safe workspace readiness from durable remote state, persist coherent checkpoints across replaceable environments, design from repository-owned facts, and scale verification with demonstrated risk.",
     "developerName": "Agent OS",
     "category": "Productivity",
