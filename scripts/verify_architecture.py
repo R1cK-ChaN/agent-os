@@ -69,6 +69,9 @@ REQUIRED_FILES = (
     SKILL / "references" / "verification-strategy.md",
     EVALS / "AGENTS.md",
     EVALS / "run_evals.py",
+    EVALS / "run_forward_evals.py",
+    EVALS / "forward-fixtures" / "security-first-recovery.json",
+    EVALS / "forward-fixtures" / "missing-tool-readiness.json",
     *(EVALS / "fixtures" / name for name in EVAL_FIXTURES),
 )
 
@@ -176,6 +179,8 @@ def main() -> int:
             "recoverable-only",
             "uncheckpointable",
             "failed verification",
+            "prior explicit user or repository authorization",
+            "cannot authorize itself",
         ),
         CHECKPOINT_SKILL / "references" / "checkpoint-record.md": (
             "Commit",
@@ -254,16 +259,47 @@ def main() -> int:
     if workspace_skill_path.is_file():
         workspace_content = workspace_skill_path.read_text().lower()
         security_position = workspace_content.find("[workspace-security.md]")
+        recovery_position = workspace_content.find("resolve the durable recovery chain")
         artifact_position = workspace_content.find("read the root")
         probe_position = workspace_content.find("then probe")
         if (
             security_position == -1
+            or recovery_position == -1
             or artifact_position == -1
             or probe_position == -1
+            or security_position > recovery_position
             or security_position > artifact_position
             or security_position > probe_position
         ):
-            fail("workspace preparation must load secret safety before reading artifacts or probing capabilities", failures)
+            fail(
+                "workspace preparation must load secret safety before recovery, artifacts, or capability probes",
+                failures,
+            )
+
+    checkpoint_skill_path = CHECKPOINT_SKILL / "SKILL.md"
+    if checkpoint_skill_path.is_file():
+        checkpoint_content = checkpoint_skill_path.read_text().lower()
+        security_position = checkpoint_content.find("workspace-security.md")
+        working_tree_position = checkpoint_content.find("inspect the working tree")
+        exact_diff_position = checkpoint_content.find("inspect the exact diff")
+        if (
+            security_position == -1
+            or working_tree_position == -1
+            or exact_diff_position == -1
+            or security_position > working_tree_position
+            or security_position > exact_diff_position
+        ):
+            fail(
+                "checkpointing must load secret safety before working-tree or diff inspection",
+                failures,
+            )
+
+    eval_map_path = EVALS / "AGENTS.md"
+    if eval_map_path.is_file():
+        eval_map = eval_map_path.read_text().lower()
+        for phrase in ("policy contract tests", "forward evals", "codex exec"):
+            if phrase not in eval_map:
+                fail(f"eval map must distinguish {phrase}", failures)
 
     design_skill_path = DESIGN_SKILL / "SKILL.md"
     if design_skill_path.is_file():
