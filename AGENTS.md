@@ -10,6 +10,7 @@ This repository distributes a private, installable Agent OS workflow. It contain
 - `plugins/agent-os/skills/execute-linear-issue/references/verification-strategy.md` owns risk-scaled verification depth.
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
 - `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
+- `evals/` owns deterministic synthetic behavior scenarios and contract assertions.
 - A target repository owns its code, domain language, business rules, schemas, API contracts, framework conventions, specifications, verification commands, and local `AGENTS.md` guidance.
 - Linear owns private task state and completion evidence. GitHub owns implementation history.
 
@@ -30,6 +31,7 @@ Run all checks before committing:
 
 ```bash
 python3 scripts/verify_architecture.py
+python3 -B evals/run_evals.py
 ```
 
 When the creator skills are available, also run their official Skill and Plugin validators from the discovered skill locations. Do not hardcode a user-home path into portable repository automation.

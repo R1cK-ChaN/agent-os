@@ -22,6 +22,7 @@ EVAL_FIXTURES = (
     "repository-precedence.json",
     "github-privacy-regression.json",
     "ordinary-staging-regression.json",
+    "ordinary-staging-gate-regression.json",
     "production-exposure-authority.json",
     "shallow-module-recognition.json",
     "single-version-database.json",

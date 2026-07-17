@@ -5,13 +5,8 @@
     "concurrent_application_versions": false,
     "external_clients": false
   },
-  "observed": {
-    "migration_strategy": "direct",
-    "expand_and_contract": false
-  },
   "assertions": [
     {"path": "observed.migration_strategy", "operator": "equals", "value": "direct"},
     {"path": "observed.expand_and_contract", "operator": "is_false"}
-  ],
-  "expected_contract_result": "pass"
+  ]
 }

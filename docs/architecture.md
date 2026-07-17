@@ -80,6 +80,8 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
 scripts/verify_architecture.py                    Deterministic architecture checks
+evals/run_evals.py                               Behavior-contract scenario runner
+evals/fixtures/                                  Synthetic decision traces and assertions
 ```
 
 Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path.
@@ -89,3 +91,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 The private Git repository is the distribution source. Add it as a Codex plugin marketplace, install `agent-os`, authorize the required external systems separately, and open a new task so the installed skill metadata is loaded.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
+
+## Behavior evaluation
+
+The local behavior runner derives decisions from synthetic scenario inputs and the current plugin policy sources, then evaluates them against named privacy, precedence, staging, authority, design, recovery, checkpoint, security, and verification contracts. Fixtures cannot author their own observed decision. The runner uses focused policy adapters and generic assertions, performs no network or production action, and is not a general LLM benchmark.

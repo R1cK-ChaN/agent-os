@@ -4,11 +4,7 @@
   "input": {
     "fact_kind": "business_rule"
   },
-  "observed": {
-    "persisted_location": "target_repository"
-  },
   "assertions": [
     {"path": "observed.persisted_location", "operator": "equals", "value": "target_repository"}
-  ],
-  "expected_contract_result": "pass"
+  ]
 }

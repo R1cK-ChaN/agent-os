@@ -5,11 +5,7 @@
     "module_behavior": "pass_through",
     "hidden_decisions": 0
   },
-  "observed": {
-    "classification": "shallow"
-  },
   "assertions": [
     {"path": "observed.classification", "operator": "equals", "value": "shallow"}
-  ],
-  "expected_contract_result": "pass"
+  ]
 }

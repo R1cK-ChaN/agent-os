@@ -4,13 +4,8 @@
   "input": {
     "coherent_slice": false
   },
-  "observed": {
-    "checkpoint_state": "uncheckpointable",
-    "represented_as_delivered": false
-  },
   "assertions": [
     {"path": "observed.checkpoint_state", "operator": "equals", "value": "uncheckpointable"},
     {"path": "observed.represented_as_delivered", "operator": "is_false"}
-  ],
-  "expected_contract_result": "pass"
+  ]
 }
