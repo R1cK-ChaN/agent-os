@@ -4,6 +4,7 @@ Return a concise, ephemeral result with these fields:
 
 - **Recovery state:** repository, default branch, current durable branch or pull request, and whether local state diverges.
 - **Capabilities:** each required runtime, package manager, verification path, tool, service, or authorization with one status: `available`, `unavailable`, `requires authorization`, or `unknown`.
+- **Project handbook:** whether `docs/INDEX.md` and `docs/NOW.md` are available, incomplete, or not initialized; absence is not a blocker unless the approved slice requires the handbook.
 - **Evidence:** the non-sensitive observation supporting each status.
 - **Blockers:** only facts that prevent the next approved slice, including the action or authority needed to clear them.
 - **Next entry point:** the exact durable branch, pull request, file, command, or approved action from which work can safely continue.

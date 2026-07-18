@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Handbook"
+  short_description: "Keep project facts and handoffs synchronized"
+  default_prompt: "Use $project-handbook to read or update the repository-owned project handbook."

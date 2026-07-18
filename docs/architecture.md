@@ -7,6 +7,7 @@ Agent OS is a personal control-plane plugin for rebuilding a consistent developm
 | Concern | Source of truth |
 | --- | --- |
 | Cross-project delivery and design method, privacy, and authority | Agent OS plugin |
+| Project requirements, current handoff, interfaces, architecture, and decisions | Target repository project handbook |
 | Private task, decisions, blockers, and completion evidence | Linear |
 | Code, domain language, business rules, schemas, API contracts, specifications, repository rules, commits, and pull requests | GitHub repository |
 | Authorized external actions | Connector, MCP, or provider CLI |
@@ -21,6 +22,7 @@ flowchart LR
     G --> P[Merged pull request]
     P --> L
     R[Repository AGENTS.md and specs] --> O
+    H[Repository project handbook] --> O
     C[Authorized connectors and cloud providers] <--> O
 ```
 
@@ -30,9 +32,9 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 
 1. Start from a Linear issue.
 2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
-3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and declarations, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
+3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and the project handbook when present, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
 4. Create an issue-scoped GitHub branch without private task metadata.
-5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch.
+5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch and update the affected handbook documents.
 6. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
 7. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
 8. Review, commit, push, and open a GitHub pull request with scope-first naming.
@@ -46,6 +48,8 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, resolves the target worktree, worktree-specific Git directory, shared Git common directory, and Git's effective Hooks directory to reject symlink, linked-worktree, and external `core.hooksPath` escapes, and compares target HEAD, branch, index, worktree status, shared and worktree-local Git configuration, and the effective Hooks directory before and after activation. Bootstrap rolls back the Skill transaction if validation fails before commit. Once the final Git snapshot passes, backup cleanup is best-effort: failures retain the backup and return a warning without triggering a second rollback. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
 
 The Git repository is intentionally public under [ADR 0001](decisions/0001-public-distribution.md) and is the acquisition source. After activation, a new task runs `prepare-development-workspace` with the target repository and optional task identifier, then independently verifies GitHub, Linear, and other durable state. Successful activation is not proof of project readiness.
+
+Project handbook initialization is a separate, explicit target-repository action. `init-handbook` may create missing starter documents, but it never runs as part of read-only Sidecar bootstrap and never overwrites existing project documents.
 
 ## Recovery protocol
 
@@ -85,19 +89,24 @@ plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
   agents/openai.yaml                              Skill discovery metadata
   references/checkpoint-consistency.md            Reviewable and recoverable state rules
   references/checkpoint-record.md                 Durable pause and resume evidence
-scripts/agent-os.mjs                              External bootstrap and read-only doctor CLI
+plugins/agent-os/skills/project-handbook/         Project handbook contract and templates
+  agents/openai.yaml                              Skill discovery metadata
+  references/handbook-contract.md                 Document ownership and update map
+  templates/                                      Safe starter documents for target repositories
+scripts/agent-os.mjs                              External bootstrap, handbook initialization, and doctor CLI
 scripts/test_bootstrap.mjs                         Deterministic zero-pollution and lifecycle checks
+scripts/test_handbook.mjs                           Project handbook initialization checks
 scripts/verify_privacy.py                          Private metadata and credential-artifact scan
 docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
 docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
-Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path.
+Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path. The project handbook is deliberately repository-owned rather than a provider-specific storage layer.
 
 ## Installation model
 
-The intentionally public Git repository is the distribution source; [ADR 0001](decisions/0001-public-distribution.md) records that repository visibility is distinct from private workflow data. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
+The intentionally public Git repository is the distribution source; [ADR 0001](decisions/0001-public-distribution.md) records that repository visibility is distinct from private workflow data. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. After activation, an explicit `init-handbook` command may scaffold missing target-repository documents. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
 OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
 

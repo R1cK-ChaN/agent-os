@@ -12,4 +12,4 @@ A failed verification does not automatically make work inconsistent. It may be `
 
 Default to one GitHub issue per branch. Combine multiple issues only after the user agrees and when each included slice remains independently explainable.
 
-Before choosing a state, check normal behavior, partial failure, dirty generated files, missing tests, documentation drift, private metadata, secret exposure, and whether a fresh environment can identify the exact next action from remote state alone.
+Before choosing a state, check normal behavior, partial failure, dirty generated files, missing tests, documentation drift, private metadata, secret exposure, and whether a fresh environment can identify the exact next action from remote state alone. When a project handbook exists, confirm that `NOW.md` names the current handoff and that completed work is not left there as history.

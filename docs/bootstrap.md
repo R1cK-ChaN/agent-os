@@ -20,6 +20,15 @@ Use prepare-development-workspace to recover owner/repository and task TEAM-123.
 Verify durable GitHub and task state, report missing authorization, and identify the safe next entry point.
 ```
 
+To explicitly create the project-owned working handbook after activation, run:
+
+```bash
+node /tmp/agent-os/scripts/agent-os.mjs init-handbook --target /absolute/project/path
+node /tmp/agent-os/scripts/agent-os.mjs init-handbook --target /absolute/project/path --check-only
+```
+
+Handbook initialization is separate from bootstrap. It creates only missing starter files, reports existing or equivalent documents, and never overwrites project content. Commit the generated documents through the target project's normal branch and pull-request workflow.
+
 ## Contract
 
 Bootstrap writes only to the user Skill directory. It snapshots the target repository before activation and again after every write, failing and rolling back installed Skill changes if HEAD, branch, index, working-tree status, shared or worktree-local Git configuration, or the effective Hooks directory changes. Existing dirty state is preserved exactly. For linked worktrees, both the worktree Git directory and shared common Git directory are protected. Hooks protection follows `git rev-parse --git-path hooks`, including an external `core.hooksPath`.
@@ -33,6 +42,8 @@ The CLI stores no installation ledger, repository remote, credential, recovery h
 ```bash
 node scripts/agent-os.mjs bootstrap --target /absolute/project/path
 node scripts/agent-os.mjs bootstrap --target /absolute/project/path --check-only
+node scripts/agent-os.mjs init-handbook --target /absolute/project/path
+node scripts/agent-os.mjs init-handbook --target /absolute/project/path --check-only
 node scripts/agent-os.mjs doctor --target /absolute/project/path
 ```
 
