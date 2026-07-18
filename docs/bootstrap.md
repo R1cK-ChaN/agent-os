@@ -20,6 +20,15 @@ Use prepare-development-workspace to recover owner/repository and task TEAM-123.
 Verify durable GitHub and task state, report missing authorization, and identify the safe next entry point.
 ```
 
+To explicitly create the project-owned working handbook after activation, run:
+
+```bash
+node /tmp/agent-os/scripts/agent-os.mjs init-handbook --target /absolute/project/path
+node /tmp/agent-os/scripts/agent-os.mjs init-handbook --target /absolute/project/path --check-only
+```
+
+Handbook initialization is separate from bootstrap. It creates only missing starter files, reports existing or equivalent documents, and never overwrites project content. Commit the generated documents through the target project's normal branch and pull-request workflow.
+
 ## Contract
 
 Bootstrap writes only to the user Skill directory. It snapshots the target repository before activation and again after every write, failing and rolling back installed Skill changes if HEAD, branch, index, working-tree status, shared or worktree-local Git configuration, or the effective Hooks directory changes. Existing dirty state is preserved exactly. For linked worktrees, both the worktree Git directory and shared common Git directory are protected. Hooks protection follows `git rev-parse --git-path hooks`, including an external `core.hooksPath`.
@@ -33,6 +42,8 @@ The CLI stores no installation ledger, repository remote, credential, recovery h
 ```bash
 node scripts/agent-os.mjs bootstrap --target /absolute/project/path
 node scripts/agent-os.mjs bootstrap --target /absolute/project/path --check-only
+node scripts/agent-os.mjs init-handbook --target /absolute/project/path
+node scripts/agent-os.mjs init-handbook --target /absolute/project/path --check-only
 node scripts/agent-os.mjs doctor --target /absolute/project/path
 ```
 
@@ -41,5 +52,13 @@ Use `--skills-home` only for an external user Skill directory. Bootstrap resolve
 ## Idempotency and updates
 
 Skills are copied atomically to `$HOME/.agents/skills/agent-os-*`. Each managed copy contains a small ownership marker. An identical destination is skipped. A changed destination is updated only when its marker identifies the same Agent OS Skill; unknown directories, files, and symlinks are refused.
+
+When developing the Plugin from a local marketplace, increment the Plugin version after changing bundled Skills or templates, refresh the local installation, and start a new Codex CLI task. The installed Plugin cache is versioned, so an unchanged version can leave an older Skill set active even when the marketplace source points at the updated checkout:
+
+```bash
+codex plugin remove agent-os
+codex plugin add agent-os --marketplace agent-os
+codex plugin list --json
+```
 
 The first release deliberately omits automatic source updates, account-level Plugin installation, persistent backups, status records, handoffs, and recursive uninstall. Update the reviewed Agent OS checkout, validate it, and rerun bootstrap to refresh managed copies.

@@ -1,7 +1,7 @@
 {
   "name": "agent-os",
-  "version": "0.1.0+codex.20260717105342",
-  "description": "Personal, secret-safe sidecar activation, workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
+  "version": "0.1.1+codex.20260718105346",
+  "description": "Personal, secret-safe sidecar activation, project handbooks, workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
   "author": {
     "name": "Agent OS"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Agent OS",
     "shortDescription": "Design and deliver personal software workflows safely.",
-    "longDescription": "Activate personal Skills outside target repositories, recover secret-safe workspace readiness from durable remote state, persist coherent checkpoints across replaceable environments, design from repository-owned facts, and scale verification with demonstrated risk.",
+    "longDescription": "Activate personal Skills outside target repositories, initialize and maintain repository-owned project handbooks, recover secret-safe workspace readiness from durable remote state, persist coherent checkpoints across replaceable environments, design from repository-owned facts, and scale verification with demonstrated risk.",
     "developerName": "Agent OS",
     "category": "Productivity",
     "capabilities": [
@@ -20,6 +20,7 @@
       "Complete this private Linear issue through its linked GitHub repository.",
       "Resume this private task from its latest GitHub checkpoint.",
       "Activate Agent OS Skills outside this target repository without changing its Git state.",
+      "Initialize or maintain this repository's shared project handbook.",
       "Assess this fresh development workspace and identify its safe recovery entry point.",
       "Checkpoint this coherent development phase before the environment is replaced.",
       "Choose the smallest sufficient verification for this change without exposing workspace secrets.",

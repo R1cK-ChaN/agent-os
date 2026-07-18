@@ -45,6 +45,8 @@ const before = await snapshot();
 const result = JSON.parse(output("node", [CLI, "bootstrap", "--target", project, "--skills-home", skillsHome, "--json"], ROOT, { ...process.env, HOME: home }));
 const after = await snapshot();
 assert.equal(result.ok, true);
+const pluginManifest = JSON.parse(await readFile(join(ROOT, "plugins", "agent-os", ".codex-plugin", "plugin.json"), "utf8"));
+assert.equal(result.pluginVersion, pluginManifest.version, "bootstrap must report the bundled Plugin version");
 assert.equal(result.projectMutationCheck.passed, true);
 assert.equal(result.cleanup.passed, true);
 assert.deepEqual(after, before, "bootstrap must preserve the exact dirty repository state");

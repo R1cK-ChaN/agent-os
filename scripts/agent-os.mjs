@@ -13,7 +13,21 @@ const REPO_ROOT = resolve(SCRIPT_DIR, "..");
 const PLUGIN_ROOT = join(REPO_ROOT, "plugins", "agent-os");
 const SOURCE_SKILLS = join(PLUGIN_ROOT, "skills");
 const PLUGIN_MANIFEST = join(PLUGIN_ROOT, ".codex-plugin", "plugin.json");
+const HANDBOOK_TEMPLATES = join(SOURCE_SKILLS, "project-handbook", "templates");
 const MARKER = ".agent-os-managed.json";
+
+const HANDBOOK_FILES = [
+  { template: "README.md", target: "README.md" },
+  { template: "AGENTS.md", target: "AGENTS.md" },
+  { template: "docs/INDEX.md", target: "docs/INDEX.md" },
+  { template: "docs/REQUIREMENTS.md", target: "docs/REQUIREMENTS.md" },
+  { template: "docs/NOW.md", target: "docs/NOW.md" },
+  { template: "docs/ARCHITECTURE.md", target: "docs/ARCHITECTURE.md", aliases: ["docs/architecture.md"] },
+  { template: "docs/INTERFACES.md", target: "docs/INTERFACES.md" },
+  { template: "docs/decisions/README.md", target: "docs/decisions/README.md" },
+  { template: "docs/runbooks/README.md", target: "docs/runbooks/README.md" },
+  { template: "docs/references/README.md", target: "docs/references/README.md" },
+];
 
 function parseArgs(argv) {
   const [command = "help", ...rest] = argv;
@@ -44,6 +58,14 @@ function run(command, args, cwd, allowFailure = false) {
 
 async function exists(path) {
   try { await stat(path); return true; } catch { return false; }
+}
+
+async function lstatOrNull(path) {
+  try { return await lstat(path); }
+  catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
 }
 
 async function nearestExisting(path) {
@@ -136,6 +158,125 @@ async function gitSnapshot(target) {
     configDigest: (await exists(join(gitCommonDir, "config"))) ? await sha256(join(gitCommonDir, "config")) : null,
     worktreeConfigDigest: (await exists(join(gitDir, "config.worktree"))) ? await sha256(join(gitDir, "config.worktree")) : null,
     hooksDigest: (await exists(hooksDir)) ? await directoryDigest(hooksDir, true) : null,
+  };
+}
+
+function assertGitWorktree(target) {
+  const inside = run("git", ["rev-parse", "--is-inside-work-tree"], target, true);
+  if (inside.status !== 0 || inside.stdout.trim() !== "true") {
+    throw new Error(`Target is not a Git worktree: ${target}`);
+  }
+}
+
+async function existingHandbookPath(target, relativePath) {
+  const path = join(target, relativePath);
+  const metadata = await lstatOrNull(path);
+  if (metadata) return { path, relativePath, metadata };
+  return null;
+}
+
+async function handbookPlan(target) {
+  const plan = [];
+  for (const entry of HANDBOOK_FILES) {
+    const exact = await existingHandbookPath(target, entry.target);
+    if (exact) {
+      plan.push({ ...entry, path: exact.relativePath, action: exact.metadata.isFile() ? "skip" : "conflict" });
+      continue;
+    }
+    let alias = null;
+    for (const candidate of entry.aliases || []) {
+      alias = await existingHandbookPath(target, candidate);
+      if (alias) break;
+    }
+    if (alias) {
+      plan.push({ ...entry, path: alias.relativePath, action: alias.metadata.isFile() ? "alias" : "conflict" });
+      continue;
+    }
+    plan.push({ ...entry, path: entry.target, action: "create" });
+  }
+  return plan;
+}
+
+async function ensureHandbookParent(target, relativePath) {
+  const parts = dirname(relativePath).split("/").filter(Boolean);
+  let current = target;
+  for (const part of parts) {
+    current = join(current, part);
+    const metadata = await lstatOrNull(current);
+    if (!metadata) {
+      await mkdir(current);
+      continue;
+    }
+    if (metadata.isSymbolicLink() || !metadata.isDirectory()) {
+      throw new Error(`Refusing unsafe handbook parent: ${current}`);
+    }
+  }
+}
+
+async function validateHandbookParent(target, relativePath) {
+  const parts = dirname(relativePath).split("/").filter(Boolean);
+  let current = target;
+  for (const part of parts) {
+    current = join(current, part);
+    const metadata = await lstatOrNull(current);
+    if (!metadata) return;
+    if (metadata.isSymbolicLink() || !metadata.isDirectory()) {
+      throw new Error(`Refusing unsafe handbook parent: ${current}`);
+    }
+  }
+}
+
+async function handbookTemplateContent(item, plan) {
+  let content = await readFile(join(HANDBOOK_TEMPLATES, item.template), "utf8");
+  if (item.template === "docs/INDEX.md") {
+    const architecture = plan.find((candidate) => candidate.template === "docs/ARCHITECTURE.md");
+    if (architecture?.action === "alias") {
+      const architectureLink = relative(dirname(item.target), architecture.path);
+      content = content.replaceAll("(ARCHITECTURE.md)", `(${architectureLink})`);
+    }
+  }
+  return content;
+}
+
+async function initHandbook(options) {
+  const target = resolve(options.target || process.cwd());
+  assertGitWorktree(target);
+  const plan = await handbookPlan(target);
+  const conflicts = plan.filter((item) => item.action === "conflict");
+  if (conflicts.length > 0) {
+    return {
+      ok: false,
+      command: "init-handbook",
+      target,
+      checkOnly: Boolean(options["check-only"]),
+      files: plan.map(({ template, target: targetPath, path, action }) => ({ template, target: targetPath, path, action })),
+      conflicts: conflicts.map(({ path }) => path),
+    };
+  }
+  for (const item of plan.filter((candidate) => candidate.action === "create")) {
+    await validateHandbookParent(target, item.target);
+  }
+  if (options["check-only"]) {
+    return {
+      ok: true,
+      command: "init-handbook",
+      target,
+      checkOnly: true,
+      files: plan.map(({ template, target: targetPath, path, action }) => ({ template, target: targetPath, path, action })),
+    };
+  }
+  for (const item of plan.filter((candidate) => candidate.action === "create")) {
+    await ensureHandbookParent(target, item.target);
+    const destination = join(target, item.target);
+    const content = await handbookTemplateContent(item, plan);
+    await writeFile(destination, content, { flag: "wx" });
+  }
+  return {
+    ok: true,
+    command: "init-handbook",
+    target,
+    checkOnly: false,
+    files: plan.map(({ template, target: targetPath, path, action }) => ({ template, target: targetPath, path, action })),
   };
 }
 
@@ -270,6 +411,7 @@ async function doctor(options) {
 function help() {
   return { ok: true, usage: [
     "node scripts/agent-os.mjs bootstrap --target <git-worktree> [--check-only]",
+    "node scripts/agent-os.mjs init-handbook --target <git-worktree> [--check-only]",
     "node scripts/agent-os.mjs doctor --target <git-worktree>",
   ] };
 }
@@ -280,12 +422,19 @@ function print(result, json) {
     console.log("Agent OS Skills activated without changing the target repository.");
     for (const warning of result.cleanup.warnings) console.error(`Cleanup warning for ${warning.skill}: ${warning.detail}`);
     console.log("Start a new Codex task and use prepare-development-workspace with the target repository and task identifier.");
+  } else if (result.command === "init-handbook") {
+    if (!result.ok) {
+      console.error(`Project handbook initialization found conflicts: ${result.conflicts.join(", ")}`);
+      return;
+    }
+    console.log(result.checkOnly ? "Project handbook initialization plan (check-only):" : "Project handbook initialized without overwriting existing files.");
+    for (const file of result.files) console.log(`- ${file.action}: ${file.path}`);
   } else console.log(JSON.stringify(result, null, 2));
 }
 
 try {
   const { command, options } = parseArgs(process.argv.slice(2));
-  const actions = { bootstrap, doctor, help };
+  const actions = { bootstrap, doctor, "init-handbook": initHandbook, help };
   if (!actions[command]) throw new Error(`Unknown command: ${command}`);
   const result = await actions[command](options);
   print(result, options.json);

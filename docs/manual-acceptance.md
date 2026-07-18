@@ -21,6 +21,16 @@ Use this checklist before a Plugin release or after changing a workflow boundary
 - Confirm it loads workspace security before Git or provider inspection, recovers from durable remote state, follows the nearest repository instructions, and reports each required capability as available, unavailable, requires authorization, or unknown.
 - Confirm it does not print raw remote credentials, secret values, or environment dumps.
 
+## Project handbook
+
+- Run `node scripts/test_handbook.mjs` and confirm it passes.
+- Run `init-handbook` against an empty disposable Git repository and confirm it creates the starter documents and directories.
+- Run it again and confirm it reports skips or equivalent existing paths without overwriting files.
+- Run it with `--check-only` and confirm the target repository has no new files or Git changes.
+- Add an existing `docs/architecture.md` and confirm initialization does not create a duplicate `docs/ARCHITECTURE.md`.
+- Confirm `NOW.md` is treated as a current handoff and completed entries are removed rather than retained as history.
+- Confirm handbook templates contain no private task identifiers, credentials, private URLs, or production data.
+
 ## Missing capability
 
 - Reference one required tool that is not installed.
