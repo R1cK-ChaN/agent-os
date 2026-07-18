@@ -53,4 +53,12 @@ Use `--skills-home` only for an external user Skill directory. Bootstrap resolve
 
 Skills are copied atomically to `$HOME/.agents/skills/agent-os-*`. Each managed copy contains a small ownership marker. An identical destination is skipped. A changed destination is updated only when its marker identifies the same Agent OS Skill; unknown directories, files, and symlinks are refused.
 
+When developing the Plugin from a local marketplace, increment the Plugin version after changing bundled Skills or templates, refresh the local installation, and start a new Codex CLI task. The installed Plugin cache is versioned, so an unchanged version can leave an older Skill set active even when the marketplace source points at the updated checkout:
+
+```bash
+codex plugin remove agent-os
+codex plugin add agent-os --marketplace agent-os
+codex plugin list --json
+```
+
 The first release deliberately omits automatic source updates, account-level Plugin installation, persistent backups, status records, handoffs, and recursive uninstall. Update the reviewed Agent OS checkout, validate it, and rerun bootstrap to refresh managed copies.
