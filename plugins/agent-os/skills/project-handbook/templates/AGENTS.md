@@ -8,5 +8,6 @@ This file is the repository's local working agreement for people and Agents.
 4. Update `INTERFACES.md` when a cross-module or external contract changes.
 5. Add or revise an ADR when an important architectural decision changes.
 6. Remove completed work from `NOW.md`; keep history in Git, issues, pull requests, and ADRs.
-7. When code, tests, requirements, or ADRs disagree, report the conflict and resolve the intended behavior explicitly.
-8. Do not put credentials, private task identifiers, private URLs, or production data in repository documents.
+7. For non-trivial work, identify the normative inputs, implementation outputs or boundaries, and verification evidence.
+8. When code, tests, requirements, or ADRs disagree, preserve the conflict, classify the owning defect, and resolve the intended behavior explicitly.
+9. Do not put credentials, private task identifiers, private URLs, or production data in repository documents.
