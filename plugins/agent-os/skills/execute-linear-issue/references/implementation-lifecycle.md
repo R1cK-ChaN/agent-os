@@ -16,7 +16,7 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 ## Phases
 
 1. **Orient:** Read applicable instructions, contracts, current code, tests, fixtures, and smoke paths.
-2. **Define:** Align the GitHub issue with the approved private scope without copying private metadata.
+2. **Define:** Align the GitHub issue with the approved private scope without copying private metadata. When the target has a project handbook, identify the normative inputs, intended implementation outputs or boundaries, and verification evidence for the slice according to its handbook contract.
 3. **Branch:** Create one branch for the GitHub issue. Keep all slices for that issue on the same branch.
 4. **Red:** Add the smallest failing test or deterministic check that proves the gap.
 5. **Green:** Implement the smallest behavior that passes.
@@ -30,4 +30,4 @@ Default to one GitHub issue per branch. Get user approval before combining multi
 
 ## Pull request content
 
-Include the shipped behavior, verification, risk, documentation impact, rollout or exposure plan when applicable, and rollback path. Use `Closes #<github-number>` for the owning GitHub issue when merge should close it. Do not mention the originating Linear task.
+Include the shipped behavior, normative inputs, implementation outputs or affected boundaries, verification evidence, risk, documentation impact, rollout or exposure plan when applicable, and rollback path. Use `Closes #<github-number>` for the owning GitHub issue when merge should close it. Do not mention the originating Linear task.

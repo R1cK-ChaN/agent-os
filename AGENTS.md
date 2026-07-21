@@ -7,7 +7,7 @@ This intentionally public repository distributes an installable Agent OS workflo
 - `plugins/agent-os/` owns the installable plugin and reusable skills.
 - `plugins/agent-os/skills/prepare-development-workspace/` owns evidence-based workspace readiness, VM secret safety, and durable recovery orientation.
 - `plugins/agent-os/skills/checkpoint-development-work/` owns coherent remote checkpoints and pause/resume evidence.
-- `plugins/agent-os/skills/project-handbook/` owns the repository-owned project handbook contract, templates, and document update map.
+- `plugins/agent-os/skills/project-handbook/` owns the repository-owned project handbook, documentation compilation contract, templates, and document update map.
 - `plugins/agent-os/skills/execute-linear-issue/references/verification-strategy.md` owns risk-scaled verification depth.
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
 - `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
@@ -27,7 +27,7 @@ This intentionally public repository distributes an installable Agent OS workflo
 - Use `gh` as the primary GitHub interface.
 - Never commit credentials, OAuth state, environment files, or invented connector identifiers.
 - Keep ordinary staging integration enabled and fast. Add release gates only for a concrete risk, an existing repository requirement, or an explicit user request.
-- Treat project handbooks as target-repository state: initialize them explicitly, update affected documents with code and tests, and keep `NOW.md` focused on current work rather than history.
+- Treat project handbooks as target-repository state: initialize them explicitly, compile normative intent and boundary contracts into implementation evidence, update affected documents with code and tests, and keep `NOW.md` focused on current work rather than history.
 - Apply the design Skill before implementing changes to domain language, invariants, module boundaries, public interfaces, persistent data, or architecture. Keep reusable judgment in the plugin and concrete project truth in the target repository.
 
 ## Verification

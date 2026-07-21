@@ -14,13 +14,15 @@ This is the map for the project's shared working set. It should help a new perso
 
 ## Fact precedence
 
-- Code and automated tests describe current observed behavior.
-- Accepted requirements and ADRs describe intended behavior and design decisions.
-- Interface schemas and generated specifications define machine-readable boundary contracts.
+- Accepted requirements and ADRs are the normative intent: they describe what the project should do and why.
+- Human-readable interfaces and their owning schemas, types, or specifications are the boundary contracts.
+- Code, automated tests, static checks, and recorded manual checks are implementation evidence: they describe or test current observed behavior but do not authorize intended behavior by themselves.
 - `NOW.md` describes the current execution handoff, not historical truth.
 - Issues, pull requests, meetings, chats, and personal notes provide context but are not the sole home of a durable decision.
 
-When sources conflict, preserve the evidence, record the discrepancy, and make the correction explicit.
+For each non-trivial slice, identify the normative inputs, implementation outputs or boundaries, and falsifiable verification evidence. Traceability helps find missing coverage; it is not proof that generated code is semantically correct.
+
+When sources conflict, preserve the evidence and classify the discrepancy as a specification defect, implementation defect, verification defect, or unrecorded intent change before correcting the owning layer.
 
 ## Update map
 

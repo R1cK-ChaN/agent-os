@@ -49,6 +49,28 @@ assert.equal(await readFile(join(project, "docs", "architecture.md"), "utf8"), "
 assert.match(await readFile(join(project, "docs", "INDEX.md"), "utf8"), /\[Architecture\]\(architecture\.md\)/);
 assert.equal(await stat(join(project, "docs", "ARCHITECTURE.md")).then(() => true).catch(() => false), false);
 
+const handbookContract = await readFile(join(ROOT, "plugins", "agent-os", "skills", "project-handbook", "references", "handbook-contract.md"), "utf8");
+const index = await readFile(join(project, "docs", "INDEX.md"), "utf8");
+const requirements = await readFile(join(project, "docs", "REQUIREMENTS.md"), "utf8");
+const interfaces = await readFile(join(project, "docs", "INTERFACES.md"), "utf8");
+const implementationLifecycle = await readFile(join(ROOT, "plugins", "agent-os", "skills", "execute-linear-issue", "references", "implementation-lifecycle.md"), "utf8");
+
+assert.match(handbookContract, /normative intent/i);
+assert.match(handbookContract, /boundary contract/i);
+assert.match(handbookContract, /implementation evidence/i);
+assert.match(handbookContract, /specification defect/i);
+assert.match(handbookContract, /implementation defect/i);
+assert.match(handbookContract, /verification defect/i);
+assert.match(handbookContract, /unrecorded intent change/i);
+assert.match(index, /normative intent/i);
+assert.match(index, /implementation evidence/i);
+assert.match(requirements, /falsifiable verification/i);
+assert.match(requirements, /interface or boundary/i);
+assert.match(interfaces, /stable interface identifier/i);
+assert.match(implementationLifecycle, /normative inputs/i);
+assert.match(implementationLifecycle, /implementation outputs/i);
+assert.match(implementationLifecycle, /verification evidence/i);
+
 const expectedFiles = [
   "AGENTS.md",
   "README.md",

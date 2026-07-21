@@ -30,9 +30,13 @@ Do not load the entire decision history by default. Use the index, links, identi
 
 Update code, tests, and affected handbook documents in the same branch and pull request. If a section has no impact, record that conclusion in the review or issue rather than inventing documentation changes.
 
+Use the documentation compilation contract in `references/handbook-contract.md` for non-trivial work. Identify normative inputs, implementation outputs or owning boundaries, and verification evidence. Treat traceability as a coverage signal rather than proof that Agent-generated output is correct.
+
 ## Conflicts and privacy
 
 Separate actual behavior from intended behavior. Code and tests show what currently happens; requirements and accepted ADRs show what the project intends; interface definitions show the contract at a boundary; `NOW.md` shows where work currently stands. When these disagree, record the discrepancy and resolve it explicitly. Do not silently rewrite history or lower a test standard.
+
+Classify a disagreement as a specification defect, implementation defect, verification defect, or unrecorded intent change, then correct the owning layer. Do not rewrite normative intent merely to match accidental implementation behavior.
 
 Use only repository-safe task references in handbook files, such as public issue numbers, branches, or local task identifiers. Never write private task-system identifiers, private URLs, credentials, or copied production data into repository-facing documents.
 
