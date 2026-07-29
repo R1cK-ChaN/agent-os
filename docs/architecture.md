@@ -36,7 +36,7 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 4. Create an issue-scoped GitHub branch without private task metadata.
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture.
 6. Compile the approved intent into the target repository's owning requirements, interfaces, architecture, decisions, and current-handoff documents. Use an ADR for applicable durable trade-offs so the repository preserves why the resulting architecture was chosen.
-7. Present the documentation baseline for user review, validate it without applying TDD to prose-only changes, then commit and push it as the first commit unique to the issue branch and record the commit on the GitHub issue. Executable implementation cannot begin before this checkpoint.
+7. Compare the documentation baseline with the approved issue and repository evidence. Issue approval authorizes automatic validation, commit, push, and checkpoint of a semantically equivalent prose-only baseline without TDD or a second full-document review. If compilation reveals a material semantic delta, stop before commit and ask one focused question; update the issue and owning normative source when intent changes, then persist automatically after resolution. [ADR 0003](decisions/0003-approve-semantic-deltas.md) owns this approval boundary.
 8. For a non-trivial implementation slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance. When accepted intent changes, update its owning normative document before code.
 9. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
 10. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
@@ -103,6 +103,7 @@ scripts/verify_privacy.py                          Private metadata and credenti
 docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
 docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
 docs/decisions/0002-documentation-baseline-before-implementation.md Documentation-first delivery decision
+docs/decisions/0003-approve-semantic-deltas.md       Semantic-delta approval decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
