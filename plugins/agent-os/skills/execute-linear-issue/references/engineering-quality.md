@@ -2,7 +2,19 @@
 
 ## Use evidence-driven implementation
 
-For non-trivial behavior, follow Red, Green, Refactor, then Verify. Write the smallest failing test or deterministic check first. For documentation-only scaffolds, generated files, mechanical formatting, or changes where a meaningful failing test cannot exist, record the exception and use the narrowest deterministic validation available.
+For non-trivial executable behavior, follow Red, Green, Refactor, then Verify.
+Write the smallest failing test or deterministic check first.
+
+Red-Green-Refactor does not apply to the approved documentation-only baseline
+that precedes executable implementation. Record that exception and use the
+narrowest deterministic document-structure, reference, traceability, privacy,
+formatting, and repository checks available. The baseline still requires user
+review, a coherent diff, and the durable commit, push, and issue checkpoint
+defined by the handbook contract.
+
+For other documentation-only scaffolds, generated files, mechanical formatting,
+or changes where a meaningful failing test cannot exist, record the exception
+and use the narrowest deterministic validation available.
 
 Prefer concrete implementations before introducing reusable abstractions. Use three concrete uses as a default evidence threshold, not a hard rule. Abstract earlier when a stable domain boundary, security invariant, provider boundary, or independently testable contract already exists.
 

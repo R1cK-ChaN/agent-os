@@ -22,6 +22,13 @@ This is the map for the project's shared working set. It should help a new perso
 
 For each non-trivial slice, identify the normative inputs, implementation outputs or boundaries, and falsifiable verification evidence. Traceability helps find missing coverage; it is not proof that generated code is semantically correct.
 
+After the approved issue and issue branch exist, compile approved intent into
+the affected handbook documents and `NOW.md`. The user-approved
+documentation-only baseline is the first commit unique to the issue branch and
+must be pushed and recorded on the issue before executable implementation.
+Red-Green-Refactor does not apply to that prose-only baseline; deterministic
+document and repository checks do.
+
 When sources conflict, preserve the evidence and classify the discrepancy as a specification defect, implementation defect, verification defect, or unrecorded intent change before correcting the owning layer.
 
 ## Update map

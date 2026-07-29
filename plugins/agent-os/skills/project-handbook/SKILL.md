@@ -30,7 +30,19 @@ Do not load the entire decision history by default. Use the index, links, identi
 
 Update code, tests, and affected handbook documents in the same branch and pull request. If a section has no impact, record that conclusion in the review or issue rather than inventing documentation changes.
 
-Use the documentation compilation contract in `references/handbook-contract.md` for non-trivial work. Identify normative inputs, implementation outputs or owning boundaries, and verification evidence. Treat traceability as a coverage signal rather than proof that Agent-generated output is correct.
+Use the documentation compilation contract in `references/handbook-contract.md`
+for non-trivial work. After the approved issue and issue branch exist, compile
+the approved intent into the affected project documents, present that baseline
+for user review, and persist the approved documentation-only baseline as the
+first commit unique to the branch before executable implementation. Identify
+normative inputs, implementation outputs or owning boundaries, and verification
+evidence. Treat traceability as a coverage signal rather than proof that
+Agent-generated output is correct.
+
+The baseline is prose-only work, so Red-Green-Refactor does not apply. Run the
+narrowest deterministic document, reference, privacy, formatting, and
+repository checks instead. If accepted intent changes later, update its owning
+normative document before the corresponding code.
 
 ## Conflicts and privacy
 
