@@ -53,21 +53,40 @@ decisions into the repository's owning normative documents:
 Use equivalent repository-owned documents when the project already has them.
 Do not create duplicate handbook files merely to satisfy the default paths.
 
-Present the complete documentation baseline for user review. After approval,
-run the narrowest applicable document-structure, reference, traceability,
-privacy, formatting, and repository checks. Red-Green-Refactor does not apply to
-this documentation-only baseline because it changes no executable behavior.
+Issue approval authorizes the Agent to compile, validate, commit, push, and
+checkpoint a semantically equivalent documentation-only baseline. Compare the
+compiled baseline with the approved issue and repository evidence; faithful
+elaboration, identifiers, formatting, routing, and traceability that do not
+change approved meaning require no second approval.
 
-Commit the approved documentation-only baseline as the first commit unique to
-the issue branch, push it, and record the baseline commit on the owning GitHub
-issue. Do not begin executable implementation before that durable checkpoint.
-The baseline must identify the normative inputs, intended implementation outputs
-or owning boundaries, and verification evidence for the planned implementation.
+Without a second full-document review, run the narrowest applicable
+document-structure, reference, traceability, privacy, formatting, and repository
+checks. Red-Green-Refactor does not apply to this documentation-only baseline
+because it changes no executable behavior. Commit it as the first commit unique
+to the issue branch, push it, and record the baseline commit on the owning
+GitHub issue before executable implementation. The baseline must identify the
+normative inputs, intended implementation outputs or owning boundaries, and
+verification evidence for the planned implementation.
 
-If stakeholders accept an intent change during implementation, update and
-approve its owning normative document before making the corresponding
-implementation change. Do not let code become the first durable source of
-intentional behavior.
+A **material semantic delta** is new meaning not authorized by the approved
+issue or repository evidence, including new product behavior or scope, a
+provider or dependency, authorization or privacy behavior, a protocol or
+observable failure rule, persistent-data ownership, a public compatibility
+constraint, or a durable architectural trade-off. When a material semantic
+delta cannot be resolved from approved evidence, stop before committing and ask
+one concrete question about only that delta.
+
+If the answer changes intent or scope, update the owning issue and normative
+document before persistence. After the delta is resolved and no other material
+delta remains, persist the completed baseline automatically without another
+full-document review.
+
+An unresolved invariant, protocol, architecture choice, or observable failure
+behavior must not be deferred to Red-Green-Refactor. TDD verifies the compiled
+implementation; it does not authorize missing product or architecture intent.
+During implementation, update an accepted intent change in its owning normative
+document before making the corresponding implementation change. Do not let code
+become the first durable source of intentional behavior.
 
 Architecture and ADRs are complementary: architecture describes the current
 system structure, while an applicable ADR preserves why a consequential choice

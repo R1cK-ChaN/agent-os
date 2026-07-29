@@ -32,17 +32,22 @@ Update code, tests, and affected handbook documents in the same branch and pull 
 
 Use the documentation compilation contract in `references/handbook-contract.md`
 for non-trivial work. After the approved issue and issue branch exist, compile
-the approved intent into the affected project documents, present that baseline
-for user review, and persist the approved documentation-only baseline as the
-first commit unique to the branch before executable implementation. Identify
-normative inputs, implementation outputs or owning boundaries, and verification
-evidence. Treat traceability as a coverage signal rather than proof that
-Agent-generated output is correct.
+the approved intent into the affected project documents. Issue approval
+authorizes deterministic validation and persistence of a semantically equivalent
+documentation-only baseline as the first commit unique to the branch before
+executable implementation; do not request a second full-document review.
+Identify normative inputs, implementation outputs or owning boundaries, and
+verification evidence. Treat traceability as a coverage signal rather than
+proof that Agent-generated output is correct.
 
 The baseline is prose-only work, so Red-Green-Refactor does not apply. Run the
 narrowest deterministic document, reference, privacy, formatting, and
-repository checks instead. If accepted intent changes later, update its owning
-normative document before the corresponding code.
+repository checks instead. Stop before commit only when compilation reveals a
+material semantic delta that approved scope and repository evidence cannot
+resolve. Ask one concrete question about that delta, update the issue and owning
+normative source when intent changes, then persist automatically after
+resolution. Do not defer an unresolved protocol, invariant, architecture
+choice, or observable failure behavior to TDD.
 
 ## Conflicts and privacy
 
