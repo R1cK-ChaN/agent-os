@@ -35,6 +35,46 @@ Each non-trivial implementation slice records:
 
 Traceability is a routing and coverage signal, not proof of semantic correctness. Repository tests and review must still challenge whether the output implements the intended behavior.
 
+## Pre-implementation documentation baseline
+
+For non-trivial work under the default Agent OS lifecycle, create the approved
+implementation issue and its issue-scoped branch before changing project
+documents. Then compile the approved discussion, issue, and applicable design
+decisions into the repository's owning normative documents:
+
+- update requirements when required behavior changes;
+- update interfaces or their owning specifications when a boundary changes;
+- update architecture when current responsibilities or data flow change;
+- add an ADR when a durable, surprising, or hard-to-reverse decision has a real
+  trade-off whose rationale must survive the current structure; and
+- update `NOW.md` with the public issue, branch, current outcome, and next
+  observable step.
+
+Use equivalent repository-owned documents when the project already has them.
+Do not create duplicate handbook files merely to satisfy the default paths.
+
+Present the complete documentation baseline for user review. After approval,
+run the narrowest applicable document-structure, reference, traceability,
+privacy, formatting, and repository checks. Red-Green-Refactor does not apply to
+this documentation-only baseline because it changes no executable behavior.
+
+Commit the approved documentation-only baseline as the first commit unique to
+the issue branch, push it, and record the baseline commit on the owning GitHub
+issue. Do not begin executable implementation before that durable checkpoint.
+The baseline must identify the normative inputs, intended implementation outputs
+or owning boundaries, and verification evidence for the planned implementation.
+
+If stakeholders accept an intent change during implementation, update and
+approve its owning normative document before making the corresponding
+implementation change. Do not let code become the first durable source of
+intentional behavior.
+
+Architecture and ADRs are complementary: architecture describes the current
+system structure, while an applicable ADR preserves why a consequential choice
+was made, which alternatives were considered, and what consequences or
+compatibility constraints follow. Do not create an ADR for routine details that
+lack a durable trade-off.
+
 ## Resolving compilation drift
 
 When intent, contracts, code, or evidence disagree, preserve the observed conflict and classify it before editing:

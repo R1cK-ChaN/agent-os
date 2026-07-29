@@ -31,6 +31,9 @@ Use this checklist before a Plugin release or after changing a workflow boundary
 - Confirm `NOW.md` is treated as a current handoff and completed entries are removed rather than retained as history.
 - Confirm handbook templates contain no private task identifiers, credentials, private URLs, or production data.
 - Confirm the initialized handbook distinguishes normative intent, boundary contracts, and implementation evidence.
+- For a non-trivial disposable task, confirm the approved documentation-only baseline is the first commit unique to the issue branch, its pushed commit SHA is recorded on the issue, its status is current in the handoff, and executable implementation begins only afterward.
+- Confirm the documentation-only baseline records its TDD exception and passes deterministic document checks instead.
+- Confirm an applicable ADR explains why a consequential architecture choice was made while the architecture document describes the resulting current structure.
 - Confirm a non-trivial sample requirement can name an interface or boundary and a falsifiable automated or manual verification path.
 
 ## Missing capability

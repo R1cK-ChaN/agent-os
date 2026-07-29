@@ -18,13 +18,14 @@ If a repository explicitly forbids GitHub issues, use its documented replacement
 1. **Orient:** Read applicable instructions, contracts, current code, tests, fixtures, and smoke paths.
 2. **Define:** Align the GitHub issue with the approved private scope without copying private metadata. When the target has a project handbook, identify the normative inputs, intended implementation outputs or boundaries, and verification evidence for the slice according to its handbook contract.
 3. **Branch:** Create one branch for the GitHub issue. Keep all slices for that issue on the same branch.
-4. **Red:** Add the smallest failing test or deterministic check that proves the gap.
-5. **Green:** Implement the smallest behavior that passes.
-6. **Refactor:** Remove duplication and apply the evidence-based abstraction guidance in `engineering-quality.md`.
-7. **Verify:** Run relevant tests, exercise the path, inspect the diff, and run Codex review.
-8. **Persist:** Commit, push, and create or update the pull request.
-9. **Merge:** Wait for explicit authority and required checks. Do not equate a staging deploy with production exposure.
-10. **Record:** After merge, update only the private Linear task with the completion checkpoint.
+4. **Documentation baseline:** Follow the project-handbook compilation contract or the repository's equivalent. Compile approved intent and applicable rationale into the owning project documents, update the current handoff, and present the complete baseline for user review. After approval, validate the prose-only change without TDD, commit it as the first commit unique to the issue branch, push it, and record the commit on the GitHub issue. Do not begin Red before this durable checkpoint.
+5. **Red:** Add the smallest failing test or deterministic check that proves the implementation gap.
+6. **Green:** Implement the smallest behavior that passes.
+7. **Refactor:** Remove duplication and apply the evidence-based abstraction guidance in `engineering-quality.md`.
+8. **Verify:** Run relevant tests, exercise the path, inspect the diff, and run Codex review.
+9. **Persist:** Commit, push, and create or update the pull request.
+10. **Merge:** Wait for explicit authority and required checks. Do not equate a staging deploy with production exposure.
+11. **Record:** After merge, update only the private Linear task with the completion checkpoint.
 
 Default to one GitHub issue per branch. Get user approval before combining multiple issues on one branch.
 

@@ -11,6 +11,7 @@ This file is the current project handoff. Remove completed entries instead of tu
 ## 正在进行
 
 - <public issue, branch, or local task reference>：<work item and next observable step>
+- Documentation baseline status: <pending review, or approved and pushed; record the exact commit SHA on the owning issue>
 
 ## 阻塞
 

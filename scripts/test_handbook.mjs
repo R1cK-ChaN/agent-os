@@ -53,7 +53,11 @@ const handbookContract = await readFile(join(ROOT, "plugins", "agent-os", "skill
 const index = await readFile(join(project, "docs", "INDEX.md"), "utf8");
 const requirements = await readFile(join(project, "docs", "REQUIREMENTS.md"), "utf8");
 const interfaces = await readFile(join(project, "docs", "INTERFACES.md"), "utf8");
+const now = await readFile(join(project, "docs", "NOW.md"), "utf8");
+const collaborationRules = await readFile(join(project, "AGENTS.md"), "utf8");
+const decisionsGuide = await readFile(join(project, "docs", "decisions", "README.md"), "utf8");
 const implementationLifecycle = await readFile(join(ROOT, "plugins", "agent-os", "skills", "execute-linear-issue", "references", "implementation-lifecycle.md"), "utf8");
+const engineeringQuality = await readFile(join(ROOT, "plugins", "agent-os", "skills", "execute-linear-issue", "references", "engineering-quality.md"), "utf8");
 
 assert.match(handbookContract, /normative intent/i);
 assert.match(handbookContract, /boundary contract/i);
@@ -67,9 +71,28 @@ assert.match(index, /implementation evidence/i);
 assert.match(requirements, /falsifiable verification/i);
 assert.match(requirements, /interface or boundary/i);
 assert.match(interfaces, /stable interface identifier/i);
+assert.match(now, /documentation baseline status/i);
 assert.match(implementationLifecycle, /normative inputs/i);
 assert.match(implementationLifecycle, /implementation outputs/i);
 assert.match(implementationLifecycle, /verification evidence/i);
+assert.match(handbookContract, /first commit unique to\s+the issue branch/i);
+assert.match(handbookContract, /before (?:that durable checkpoint|executable implementation)/i);
+assert.match(handbookContract, /user review/i);
+assert.match(handbookContract, /record.*baseline commit.*issue/is);
+assert.match(handbookContract, /Red-Green-Refactor.*does not apply/is);
+assert.match(handbookContract, /update.*normative document.*before.*implementation/is);
+assert.match(collaborationRules, /documentation baseline/i);
+assert.match(collaborationRules, /first commit unique to the issue branch/i);
+assert.match(decisionsGuide, /why.*decision/is);
+assert.match(decisionsGuide, /alternatives/i);
+assert.match(decisionsGuide, /consequences/i);
+assert.match(decisionsGuide, /architecture.*current/is);
+assert.match(implementationLifecycle, /Documentation baseline/i);
+assert.match(implementationLifecycle, /first commit unique to the issue branch/i);
+assert.match(implementationLifecycle, /before.*Red/is);
+assert.match(engineeringQuality, /documentation-only baseline/i);
+assert.match(engineeringQuality, /Red-Green-Refactor.*does not apply/is);
+assert.match(engineeringQuality, /deterministic.*document/is);
 
 const expectedFiles = [
   "AGENTS.md",
