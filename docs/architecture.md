@@ -34,15 +34,17 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
 3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and the project handbook when present, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
 4. Create an issue-scoped GitHub branch without private task metadata.
-5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture; write every concrete decision back to the repository branch and update the affected handbook documents.
-6. For a non-trivial slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance.
-7. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
-8. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
-9. Review, commit, push, and open a GitHub pull request with scope-first naming.
-10. Wait for required checks and merge authority.
-11. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
-12. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
-13. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
+5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture.
+6. Compile the approved intent into the target repository's owning requirements, interfaces, architecture, decisions, and current-handoff documents. Use an ADR for applicable durable trade-offs so the repository preserves why the resulting architecture was chosen.
+7. Present the documentation baseline for user review, validate it without applying TDD to prose-only changes, then commit and push it as the first commit unique to the issue branch and record the commit on the GitHub issue. Executable implementation cannot begin before this checkpoint.
+8. For a non-trivial implementation slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance. When accepted intent changes, update its owning normative document before code.
+9. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
+10. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
+11. Review, commit, push, and open a GitHub pull request with scope-first naming.
+12. Wait for required checks and merge authority.
+13. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
+14. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
+15. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
 ## Sidecar bootstrap
 
@@ -100,10 +102,11 @@ scripts/test_handbook.mjs                           Project handbook initializat
 scripts/verify_privacy.py                          Private metadata and credential-artifact scan
 docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
 docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
+docs/decisions/0002-documentation-baseline-before-implementation.md Documentation-first delivery decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
-Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path. The project handbook is deliberately repository-owned rather than a provider-specific storage layer. Its documentation compilation contract treats accepted requirements and decisions as normative intent, interfaces and schemas as boundary contracts, and code plus checks as implementation evidence. Traceability routes review and exposes missing coverage; it does not prove that Agent-generated output is semantically correct.
+Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path. The project handbook is deliberately repository-owned rather than a provider-specific storage layer. Its documentation compilation contract treats accepted requirements and decisions as normative intent, interfaces and schemas as boundary contracts, and code plus checks as implementation evidence. For non-trivial work, the approved documentation baseline is the first commit unique to the issue branch and a required durable checkpoint before executable implementation. [ADR 0002](decisions/0002-documentation-baseline-before-implementation.md) records why this ordering preserves both current structure and decision rationale. Traceability routes review and exposes missing coverage; it does not prove that Agent-generated output is semantically correct.
 
 ## Installation model
 

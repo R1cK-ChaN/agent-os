@@ -28,6 +28,7 @@ This intentionally public repository distributes an installable Agent OS workflo
 - Never commit credentials, OAuth state, environment files, or invented connector identifiers.
 - Keep ordinary staging integration enabled and fast. Add release gates only for a concrete risk, an existing repository requirement, or an explicit user request.
 - Treat project handbooks as target-repository state: initialize them explicitly, compile normative intent and boundary contracts into implementation evidence, update affected documents with code and tests, and keep `NOW.md` focused on current work rather than history.
+- For non-trivial work, create the approved GitHub issue and issue branch before changing project documents. Compile the approved intent and applicable rationale into the repository-owned handbook, validate the prose-only change without TDD, and commit and push that documentation baseline as the first commit unique to the branch before executable implementation. Record the baseline commit on the issue. Use ADRs for applicable durable trade-offs and architecture documents for resulting current structure.
 - Apply the design Skill before implementing changes to domain language, invariants, module boundaries, public interfaces, persistent data, or architecture. Keep reusable judgment in the plugin and concrete project truth in the target repository.
 
 ## Verification
