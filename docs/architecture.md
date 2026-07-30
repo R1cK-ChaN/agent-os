@@ -37,14 +37,15 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture.
 6. Compile the approved intent into the target repository's owning requirements, interfaces, architecture, decisions, and current-handoff documents. Use an ADR for applicable durable trade-offs so the repository preserves why the resulting architecture was chosen.
 7. Compare the documentation baseline with the approved issue and repository evidence. Issue approval authorizes automatic validation, commit, push, and checkpoint of a semantically equivalent prose-only baseline without TDD or a second full-document review. If compilation reveals a material semantic delta, stop before commit and ask one focused question; update the issue and owning normative source when intent changes, then persist automatically after resolution. [ADR 0003](decisions/0003-approve-semantic-deltas.md) owns this approval boundary.
-8. For a non-trivial implementation slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance. When accepted intent changes, update its owning normative document before code.
-9. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
-10. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered.
-11. Review, commit, push, and open a GitHub pull request with scope-first naming.
-12. Wait for required checks and merge authority.
-13. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
-14. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
-15. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
+8. Treat the persisted documentation baseline as a recovery checkpoint, not a pause or completion condition. When implementation remains in scope and no concrete stop condition exists, continue immediately into the smallest failing test or deterministic Red check. Later checkpoints likewise continue into the next safe, authorized, locally executable action. [ADR 0004](decisions/0004-checkpoints-do-not-pause-work.md) owns checkpoint continuation.
+9. For a non-trivial implementation slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance. When accepted intent changes, update its owning normative document before code.
+10. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
+11. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered and do not stop merely because the checkpoint succeeded.
+12. Review, commit, push, and open a GitHub pull request with scope-first naming.
+13. Wait for required checks and merge authority.
+14. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
+15. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
+16. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
 
 ## Sidecar bootstrap
 
@@ -104,6 +105,7 @@ docs/bootstrap.md                                  Sidecar bootstrap usage and t
 docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
 docs/decisions/0002-documentation-baseline-before-implementation.md Documentation-first delivery decision
 docs/decisions/0003-approve-semantic-deltas.md       Semantic-delta approval decision
+docs/decisions/0004-checkpoints-do-not-pause-work.md Checkpoint-continuation decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
