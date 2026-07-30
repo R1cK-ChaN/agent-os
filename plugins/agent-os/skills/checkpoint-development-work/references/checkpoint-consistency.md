@@ -13,3 +13,8 @@ A failed verification does not automatically make work inconsistent. It may be `
 Default to one GitHub issue per branch. Combine multiple issues only after the user agrees and when each included slice remains independently explainable.
 
 Before choosing a state, check normal behavior, partial failure, dirty generated files, missing tests, documentation drift, private metadata, secret exposure, and whether a fresh environment can identify the exact next action from remote state alone. When a project handbook exists, confirm that `NOW.md` names the current handoff and that completed work is not left there as history.
+
+Checkpoint classification controls what may be persisted and how it is
+described; it does not decide whether the task pauses. After persistence,
+continue with the next safe authorized local action unless the checkpoint names
+a concrete stop condition.

@@ -5,7 +5,10 @@ description: Form and persist a coherent, privacy-safe development checkpoint fo
 
 # Checkpoint development work
 
-Shrink work into a consistent, explainable state that another environment can recover from. A checkpoint preserves evidence; it does not declare incomplete work delivered.
+Shrink work into a consistent, explainable state that another environment can
+recover from. A checkpoint preserves evidence; it does not declare incomplete
+work delivered and does not by itself pause, complete, or narrow the approved
+task.
 
 ## Workflow
 
@@ -19,8 +22,9 @@ Shrink work into a consistent, explainable state that another environment can re
    - private decisions, task status, and private blockers to the approved private task system.
 6. For `reviewable` or `recoverable-only` work, run the narrowest relevant checks, inspect the exact diff only for paths that passed the safety screen, commit with a scope-first subject, and push the approved branch. Never silently mix unrelated work; get user approval before combining multiple issues.
 7. Create or update a draft pull request only when the remote state is coherent enough to review. Describe failed or skipped verification explicitly; never label `recoverable-only` work delivered.
-8. Read [checkpoint-record.md](references/checkpoint-record.md) and record the durable evidence and exact resume point.
+8. Read [checkpoint-record.md](references/checkpoint-record.md) and record the durable evidence and exact resume point. For an external wait, record the exact resume condition: the event or observed state that permits work to continue.
 9. For `uncheckpointable` work, do not commit arbitrary dirty state. Report the unpersisted files, inconsistency, and smallest action that could form a safe checkpoint.
+10. After a successful checkpoint, continue with the next safe, authorized, locally executable action. A documentation-baseline checkpoint continues directly into Red when executable implementation remains in scope. Do not return control merely because a coherent phase was persisted.
 
 ## Boundaries
 
@@ -28,7 +32,17 @@ Shrink work into a consistent, explainable state that another environment can re
 - Do not publish secrets or private task metadata to GitHub.
 - Do not fabricate a commit, verification result, remote branch, pull request, or recovery guarantee.
 - Prefer a small, explicit checkpoint over a broad WIP snapshot.
+- Commit, push, issue comment, phase completion, and a clean worktree are not stop conditions.
+- Stop only when a material semantic delta requires authority; a concrete permission, capability, credential, dependency, or safety blocker prevents progress; an external wait is required; approved scope is documentation-only or complete; the user requested an explicit user pause; or a closer repository rule requires a repository-required manual gate.
+- Do not ask the user to say “continue” merely because a checkpoint succeeded.
+- Do not merely announce that the next phase will run later when its next action is safe, authorized, and locally executable now.
+- `recoverable-only` means incomplete but durable; never call it delivered or complete, and continue with other safe local work when available.
 
 ## Resume
 
-Resume from the remote branch and pull request first, verify the recorded commit exists, then use the checkpoint record's next step. If remote state conflicts with a checkpoint record, trust remote Git and correct the record.
+Resume from the remote branch and pull request first, verify the recorded commit
+exists, then use the checkpoint record's next step. If the checkpoint names an
+external wait, verify its exact resume condition before continuing. If no stop
+condition applies, perform the next action rather than asking for another
+continuation instruction. If remote state conflicts with a checkpoint record,
+trust remote Git and correct the record.

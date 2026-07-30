@@ -58,6 +58,8 @@ const collaborationRules = await readFile(join(project, "AGENTS.md"), "utf8");
 const decisionsGuide = await readFile(join(project, "docs", "decisions", "README.md"), "utf8");
 const implementationLifecycle = await readFile(join(ROOT, "plugins", "agent-os", "skills", "execute-linear-issue", "references", "implementation-lifecycle.md"), "utf8");
 const engineeringQuality = await readFile(join(ROOT, "plugins", "agent-os", "skills", "execute-linear-issue", "references", "engineering-quality.md"), "utf8");
+const checkpointSkill = await readFile(join(ROOT, "plugins", "agent-os", "skills", "checkpoint-development-work", "SKILL.md"), "utf8");
+const checkpointRecord = await readFile(join(ROOT, "plugins", "agent-os", "skills", "checkpoint-development-work", "references", "checkpoint-record.md"), "utf8");
 
 assert.match(handbookContract, /normative intent/i);
 assert.match(handbookContract, /boundary contract/i);
@@ -106,6 +108,19 @@ assert.doesNotMatch(implementationLifecycle, /present the complete baseline for 
 assert.match(engineeringQuality, /documentation-only baseline/i);
 assert.match(engineeringQuality, /Red-Green-Refactor.*does not apply/is);
 assert.match(engineeringQuality, /deterministic.*document/is);
+assert.match(handbookContract, /continue directly into\s+Red/i);
+assert.match(implementationLifecycle, /checkpoint.*does not.*pause/is);
+assert.match(implementationLifecycle, /next safe, authorized, locally executable action/i);
+assert.match(checkpointSkill, /does not.*pause.*complete.*narrow/is);
+assert.match(checkpointSkill, /commit.*push.*issue comment.*clean worktree.*not stop conditions/is);
+assert.match(checkpointSkill, /material semantic delta/i);
+assert.match(checkpointSkill, /external wait/i);
+assert.match(checkpointSkill, /documentation-only/i);
+assert.match(checkpointSkill, /explicit user pause/i);
+assert.match(checkpointSkill, /repository-required manual gate/i);
+assert.match(checkpointSkill, /do not ask.*say [“"]continue[”"]/is);
+assert.match(checkpointSkill, /do not merely announce.*next phase/is);
+assert.match(checkpointRecord, /exact resume condition/i);
 
 const expectedFiles = [
   "AGENTS.md",

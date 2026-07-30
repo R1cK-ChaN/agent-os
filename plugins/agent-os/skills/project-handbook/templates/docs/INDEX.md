@@ -32,6 +32,11 @@ automatic persistence. Red-Green-Refactor does not apply to that prose-only
 baseline, and unresolved protocol or architecture choices cannot be deferred to
 TDD.
 
+The pushed baseline is a recovery checkpoint, not a pause. When executable
+implementation remains in scope and no concrete stop condition applies,
+continue directly into Red instead of asking the user to say “continue” or
+announcing that the next phase will begin later.
+
 When sources conflict, preserve the evidence and classify the discrepancy as a specification defect, implementation defect, verification defect, or unrecorded intent change before correcting the owning layer.
 
 ## Update map

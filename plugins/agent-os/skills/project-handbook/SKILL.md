@@ -49,6 +49,11 @@ normative source when intent changes, then persist automatically after
 resolution. Do not defer an unresolved protocol, invariant, architecture
 choice, or observable failure behavior to TDD.
 
+After the baseline is pushed and recorded, continue directly into Red when
+executable implementation remains in scope and the checkpoint contract names no
+stop condition. The documentation checkpoint preserves recovery evidence; it
+does not pause, complete, or narrow the task.
+
 ## Conflicts and privacy
 
 Separate actual behavior from intended behavior. Code and tests show what currently happens; requirements and accepted ADRs show what the project intends; interface definitions show the contract at a boundary; `NOW.md` shows where work currently stands. When these disagree, record the discrepancy and resolve it explicitly. Do not silently rewrite history or lower a test standard.
