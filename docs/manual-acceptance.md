@@ -33,6 +33,8 @@ Use this checklist before a Plugin release or after changing a workflow boundary
 - Confirm the initialized handbook distinguishes normative intent, boundary contracts, and implementation evidence.
 - For a non-trivial disposable task, confirm issue approval authorizes automatic persistence of a semantically equivalent documentation-only baseline as the first commit unique to the issue branch without a second full-document review; confirm its pushed commit SHA is recorded on the issue, its status is current in the handoff, and executable implementation begins only afterward.
 - Introduce one unapproved provider or protocol failure rule during a disposable baseline compilation and confirm the Agent stops before commit, asks one focused question about that material semantic delta, updates the issue and owning normative source when intent changes, then persists automatically without another full review.
+- For an implementation-scoped disposable task with no blocker, confirm the Agent continues directly from the pushed baseline checkpoint into a failing implementation check without asking the user to say “continue” or merely announcing the next phase.
+- Confirm a later commit, push, issue comment, completed phase, or clean worktree does not pause authorized local work, while a real external wait records its exact resume condition.
 - Confirm the documentation-only baseline records its TDD exception and passes deterministic document checks instead.
 - Confirm an applicable ADR explains why a consequential architecture choice was made while the architecture document describes the resulting current structure.
 - Confirm a non-trivial sample requirement can name an interface or boundary and a falsifiable automated or manual verification path.

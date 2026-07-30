@@ -94,6 +94,19 @@ was made, which alternatives were considered, and what consequences or
 compatibility constraints follow. Do not create an ADR for routine details that
 lack a durable trade-off.
 
+## Continue after the baseline
+
+The pushed and recorded documentation baseline is a recovery checkpoint, not a
+pause or completion condition. When the approved issue includes executable
+implementation and no permitted stop condition applies, continue directly into
+Red. The next observable action is the smallest failing implementation test or
+deterministic Red check, not a message announcing that implementation will
+begin later.
+
+Do not ask the user to say “continue” merely because the baseline was committed,
+pushed, recorded, or left a clean worktree. Use the checkpoint-development
+contract for the narrow stop conditions and external-wait resume evidence.
+
 ## Resolving compilation drift
 
 When intent, contracts, code, or evidence disagree, preserve the observed conflict and classify it before editing:
