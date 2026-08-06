@@ -7,7 +7,9 @@ Agent OS is a personal control-plane plugin for rebuilding a consistent developm
 | Concern | Source of truth |
 | --- | --- |
 | Cross-project delivery and design method, privacy, and authority | Agent OS plugin |
-| Project normative intent, boundary contracts, current handoff, architecture, and decisions | Target repository project handbook |
+| Project normative intent, boundary contracts, architecture, and decisions | Target repository project handbook |
+| Shared task scope, progress, blockers, verification, and resume conditions | GitHub issue or pull request |
+| Session-local recovery context | Private, untracked checkpoint outside the target repository |
 | Private task, decisions, blockers, and completion evidence | Linear |
 | Code, domain language, business rules, schemas, API contracts, specifications, repository rules, commits, and pull requests | GitHub repository |
 | Authorized external actions | Connector, MCP, or provider CLI |
@@ -35,7 +37,7 @@ The return edge writes the merged pull-request link and observed evidence to Lin
 3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and the project handbook when present, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
 4. Create an issue-scoped GitHub branch without private task metadata.
 5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture.
-6. Compile the approved intent into the target repository's owning requirements, interfaces, architecture, decisions, and current-handoff documents. Use an ADR for applicable durable trade-offs so the repository preserves why the resulting architecture was chosen.
+6. Compile the approved intent into the target repository's owning requirements, interfaces, architecture, and decisions. Use an ADR for applicable durable trade-offs so the repository preserves why the resulting architecture was chosen. Keep shared execution state in the GitHub issue or pull request and session-local recovery context outside tracked project files.
 7. Compare the documentation baseline with the approved issue and repository evidence. Issue approval authorizes automatic validation, commit, push, and checkpoint of a semantically equivalent prose-only baseline without TDD or a second full-document review. If compilation reveals a material semantic delta, stop before commit and ask one focused question; update the issue and owning normative source when intent changes, then persist automatically after resolution. [ADR 0003](decisions/0003-approve-semantic-deltas.md) owns this approval boundary.
 8. Treat the persisted documentation baseline as a recovery checkpoint, not a pause or completion condition. When implementation remains in scope and no concrete stop condition exists, continue immediately into the smallest failing test or deterministic Red check. Later checkpoints likewise continue into the next safe, authorized, locally executable action. [ADR 0004](decisions/0004-checkpoints-do-not-pause-work.md) owns checkpoint continuation.
 9. For a non-trivial implementation slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance. When accepted intent changes, update its owning normative document before code.
@@ -57,7 +59,7 @@ Project handbook initialization is a separate, explicit target-repository action
 
 ## Recovery protocol
 
-A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
+A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The GitHub issue or pull request owns shared execution state and the exact resume condition; a private checkpoint may supplement session-local recovery without becoming project truth. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale private checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
 
 ## Repository shape
 
@@ -106,6 +108,7 @@ docs/decisions/0001-public-distribution.md          Public distribution and priv
 docs/decisions/0002-documentation-baseline-before-implementation.md Documentation-first delivery decision
 docs/decisions/0003-approve-semantic-deltas.md       Semantic-delta approval decision
 docs/decisions/0004-checkpoints-do-not-pause-work.md Checkpoint-continuation decision
+docs/decisions/0005-keep-execution-handoffs-out-of-tracked-project-docs.md Tracked-handoff ownership decision
 docs/manual-acceptance.md                         Human-run workflow acceptance checklist
 ```
 
@@ -115,7 +118,7 @@ Provider-specific skills, custom MCP servers, apps, hooks, and automations are i
 
 The intentionally public Git repository is the distribution source; [ADR 0001](decisions/0001-public-distribution.md) records that repository visibility is distinct from private workflow data. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. After activation, an explicit `init-handbook` command may scaffold missing target-repository documents. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
 
-OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers.
+OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers. Agent OS does not create or require a tracked mutable handoff file by default. A closer repository convention may explicitly retain one, but existing target repositories are never rewritten or cleaned up automatically.
 
 ## Acceptance boundary
 
