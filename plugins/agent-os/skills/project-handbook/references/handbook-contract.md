@@ -8,7 +8,6 @@ The project handbook is a small, repository-owned working set, not a document wa
 | `AGENTS.md` | Collaboration rules and local constraints | Repository workflow or ownership rules change |
 | `docs/INDEX.md` | Document routing and fact precedence | The handbook shape or source ordering changes |
 | `docs/REQUIREMENTS.md` | Numbered requirements | Required behavior changes |
-| `docs/NOW.md` | Current work, blockers, decisions, and handoff | Work starts, changes state, blocks, or completes |
 | `docs/ARCHITECTURE.md` | Current system boundaries and responsibilities | Architecture or data flow changes |
 | `docs/INTERFACES.md` | Cross-module and provider contracts | A boundary, schema, error, or compatibility rule changes |
 | `docs/decisions/` | Append-only decision history | A surprising, hard-to-reverse trade-off is accepted |
@@ -46,9 +45,11 @@ decisions into the repository's owning normative documents:
 - update interfaces or their owning specifications when a boundary changes;
 - update architecture when current responsibilities or data flow change;
 - add an ADR when a durable, surprising, or hard-to-reverse decision has a real
-  trade-off whose rationale must survive the current structure; and
-- update `NOW.md` with the public issue, branch, current outcome, and next
-  observable step.
+  trade-off whose rationale must survive the current structure.
+
+Record shared task progress, blockers, verification, and the next observable
+step on the owning GitHub issue or pull request. Keep session-local recovery
+context in a private checkpoint outside tracked target-repository files.
 
 Use equivalent repository-owned documents when the project already has them.
 Do not create duplicate handbook files merely to satisfy the default paths.

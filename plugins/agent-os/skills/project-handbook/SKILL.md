@@ -1,6 +1,6 @@
 ---
 name: project-handbook
-description: Create and maintain a repository-owned project handbook that gives people and Agents one current, privacy-safe view of requirements, architecture, interfaces, decisions, and next work.
+description: Create and maintain a repository-owned project handbook that gives people and Agents a current, privacy-safe view of durable requirements, architecture, interfaces, and decisions.
 ---
 
 # Project handbook
@@ -13,9 +13,12 @@ Read the smallest useful route through the handbook:
 
 1. `README.md` and the nearest `AGENTS.md`.
 2. `docs/INDEX.md` for the project's document map and fact precedence.
-3. `docs/NOW.md` for the current handoff.
-4. Only the requirements, interface contracts, architecture sections, and ADRs relevant to the current task.
-5. Runbooks and references only when the task needs operational or external context.
+3. Only the requirements, interface contracts, architecture sections, and ADRs relevant to the current task.
+4. Runbooks and references only when the task needs operational or external context.
+
+Obtain shared task progress and handoff context from the approved issue or pull
+request. Private checkpoints may supplement session recovery but are not part
+of the shared handbook.
 
 Do not load the entire decision history by default. Use the index, links, identifiers, and current task to select relevant context.
 
@@ -25,10 +28,16 @@ Do not load the entire decision history by default. Use the index, links, identi
 - `INTERFACES.md` owns human-readable cross-boundary contracts and links to machine-readable schemas or generated specifications.
 - `ARCHITECTURE.md` owns current boundaries, responsibilities, and data flow.
 - `decisions/` owns append-only ADR history for important, hard-to-reverse decisions.
-- `NOW.md` owns only the current work, blockers, open decisions, and safe handoff. Remove completed entries; do not turn it into a changelog.
 - `AGENTS.md` owns repository collaboration rules.
+- Issues and pull requests own shared task scope, progress, blockers,
+  verification evidence, and resume conditions.
+- Private checkpoints may own session-local recovery context but remain outside
+  tracked target-repository files and are not project truth.
 
-Update code, tests, and affected handbook documents in the same branch and pull request. If a section has no impact, record that conclusion in the review or issue rather than inventing documentation changes.
+Update code, tests, and affected durable handbook documents in the same branch
+and pull request. Task progress alone is not a handbook change. If a section has
+no impact, record that conclusion in the review or issue rather than inventing
+documentation changes.
 
 Use the documentation compilation contract in `references/handbook-contract.md`
 for non-trivial work. After the approved issue and issue branch exist, compile
@@ -56,7 +65,12 @@ does not pause, complete, or narrow the task.
 
 ## Conflicts and privacy
 
-Separate actual behavior from intended behavior. Code and tests show what currently happens; requirements and accepted ADRs show what the project intends; interface definitions show the contract at a boundary; `NOW.md` shows where work currently stands. When these disagree, record the discrepancy and resolve it explicitly. Do not silently rewrite history or lower a test standard.
+Separate actual behavior from intended behavior. Code and tests show what
+currently happens; requirements and accepted ADRs show what the project
+intends; interface definitions show the contract at a boundary; the approved
+issue and pull request show where task execution currently stands. When these
+disagree, record the discrepancy and resolve it explicitly. Do not silently
+rewrite history or lower a test standard.
 
 Classify a disagreement as a specification defect, implementation defect, verification defect, or unrecorded intent change, then correct the owning layer. Do not rewrite normative intent merely to match accidental implementation behavior.
 
