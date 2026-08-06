@@ -21,7 +21,6 @@ const HANDBOOK_FILES = [
   { template: "AGENTS.md", target: "AGENTS.md" },
   { template: "docs/INDEX.md", target: "docs/INDEX.md" },
   { template: "docs/REQUIREMENTS.md", target: "docs/REQUIREMENTS.md" },
-  { template: "docs/NOW.md", target: "docs/NOW.md" },
   { template: "docs/ARCHITECTURE.md", target: "docs/ARCHITECTURE.md", aliases: ["docs/architecture.md"] },
   { template: "docs/INTERFACES.md", target: "docs/INTERFACES.md" },
   { template: "docs/decisions/README.md", target: "docs/decisions/README.md" },

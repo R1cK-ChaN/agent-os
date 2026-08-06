@@ -28,10 +28,11 @@ Use this checklist before a Plugin release or after changing a workflow boundary
 - Run it again and confirm it reports skips or equivalent existing paths without overwriting files.
 - Run it with `--check-only` and confirm the target repository has no new files or Git changes.
 - Add an existing `docs/architecture.md` and confirm initialization does not create a duplicate `docs/ARCHITECTURE.md`.
-- Confirm `NOW.md` is treated as a current handoff and completed entries are removed rather than retained as history.
+- Confirm handbook initialization does not create or require a tracked mutable handoff file.
 - Confirm handbook templates contain no private task identifiers, credentials, private URLs, or production data.
 - Confirm the initialized handbook distinguishes normative intent, boundary contracts, and implementation evidence.
-- For a non-trivial disposable task, confirm issue approval authorizes automatic persistence of a semantically equivalent documentation-only baseline as the first commit unique to the issue branch without a second full-document review; confirm its pushed commit SHA is recorded on the issue, its status is current in the handoff, and executable implementation begins only afterward.
+- For a non-trivial disposable task, confirm issue approval authorizes automatic persistence of a semantically equivalent documentation-only baseline as the first commit unique to the issue branch without a second full-document review; confirm its pushed commit SHA and current status are recorded on the issue, and executable implementation begins only afterward.
+- Confirm shared task progress and resume conditions are recorded on the GitHub issue or pull request while session-local recovery details stay outside tracked project files.
 - Introduce one unapproved provider or protocol failure rule during a disposable baseline compilation and confirm the Agent stops before commit, asks one focused question about that material semantic delta, updates the issue and owning normative source when intent changes, then persists automatically without another full review.
 - For an implementation-scoped disposable task with no blocker, confirm the Agent continues directly from the pushed baseline checkpoint into a failing implementation check without asking the user to say “continue” or merely announcing the next phase.
 - Confirm a later commit, push, issue comment, completed phase, or clean worktree does not pause authorized local work, while a real external wait records its exact resume condition.

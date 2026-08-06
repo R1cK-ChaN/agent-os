@@ -53,7 +53,6 @@ const handbookContract = await readFile(join(ROOT, "plugins", "agent-os", "skill
 const index = await readFile(join(project, "docs", "INDEX.md"), "utf8");
 const requirements = await readFile(join(project, "docs", "REQUIREMENTS.md"), "utf8");
 const interfaces = await readFile(join(project, "docs", "INTERFACES.md"), "utf8");
-const now = await readFile(join(project, "docs", "NOW.md"), "utf8");
 const collaborationRules = await readFile(join(project, "AGENTS.md"), "utf8");
 const decisionsGuide = await readFile(join(project, "docs", "decisions", "README.md"), "utf8");
 const implementationLifecycle = await readFile(join(ROOT, "plugins", "agent-os", "skills", "execute-linear-issue", "references", "implementation-lifecycle.md"), "utf8");
@@ -70,10 +69,18 @@ assert.match(handbookContract, /verification defect/i);
 assert.match(handbookContract, /unrecorded intent change/i);
 assert.match(index, /normative intent/i);
 assert.match(index, /implementation evidence/i);
+assert.match(index, /issues and pull requests own shared task progress/i);
+assert.match(index, /private recovery state stays outside\s+tracked repository files/i);
 assert.match(requirements, /falsifiable verification/i);
 assert.match(requirements, /interface or boundary/i);
 assert.match(interfaces, /stable interface identifier/i);
-assert.match(now, /documentation baseline status/i);
+assert.equal(await stat(join(project, "docs", "NOW.md")).then(() => true).catch(() => false), false);
+assert.doesNotMatch(index, /NOW\.md/i);
+assert.doesNotMatch(collaborationRules, /NOW\.md/i);
+assert.doesNotMatch(handbookContract, /NOW\.md/i);
+assert.doesNotMatch(implementationLifecycle, /NOW\.md/i);
+assert.match(handbookContract, /GitHub issue or pull request/i);
+assert.match(handbookContract, /private checkpoint outside tracked target-repository files/i);
 assert.match(implementationLifecycle, /normative inputs/i);
 assert.match(implementationLifecycle, /implementation outputs/i);
 assert.match(implementationLifecycle, /verification evidence/i);
@@ -127,7 +134,6 @@ const expectedFiles = [
   "README.md",
   "docs/INDEX.md",
   "docs/INTERFACES.md",
-  "docs/NOW.md",
   "docs/REQUIREMENTS.md",
   "docs/architecture.md",
   "docs/decisions/README.md",
