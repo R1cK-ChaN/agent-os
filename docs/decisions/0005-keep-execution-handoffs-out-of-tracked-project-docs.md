@@ -1,6 +1,6 @@
 # ADR 0005: Keep execution handoffs out of tracked project documentation
 
-- Status: Accepted
+- Status: Accepted; documentation-baseline clauses superseded by ADR 0006
 - Date: 2026-08-06
 - Issue: #20
 - Supersedes: ADR 0002 only where it assigns the current handoff to `NOW.md`

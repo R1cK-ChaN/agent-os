@@ -1,40 +1,41 @@
 # Agent OS repository map
 
-This intentionally public repository distributes an installable Agent OS workflow for personal development. It contains reusable cross-project delivery and design methods, not project-specific product knowledge or credentials.
+This public repository distributes an installable, risk-scaled Agent OS workflow for personal development. It contains reusable cross-project methods, not project-specific facts or credentials.
 
 ## Source of truth
 
 - `plugins/agent-os/` owns the installable plugin and reusable skills.
-- `plugins/agent-os/skills/prepare-development-workspace/` owns evidence-based workspace readiness, VM secret safety, and durable recovery orientation.
-- `plugins/agent-os/skills/checkpoint-development-work/` owns coherent remote checkpoints and pause/resume evidence.
-- `plugins/agent-os/skills/project-handbook/` owns the repository-owned project handbook, documentation compilation contract, templates, and document update map.
-- `plugins/agent-os/skills/execute-linear-issue/references/verification-strategy.md` owns risk-scaled verification depth.
+- `plugins/agent-os/skills/deliver-software-change/` owns lightweight delivery, conditional documentation-first work, verification, authority, and release guidance.
+- `plugins/agent-os/skills/prepare-development-workspace/` owns evidence-based workspace readiness, secret safety, and durable recovery orientation.
+- `plugins/agent-os/skills/checkpoint-development-work/` owns coherent remote checkpoints before interruption risk.
+- `plugins/agent-os/skills/project-handbook/` owns the optional repository handbook, major-change documentation contract, and templates.
+- `plugins/agent-os/skills/design-software-change/` owns reusable design questions; target repositories own the answers.
 - `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
-- `docs/architecture.md` records system boundaries, lifecycle, and directory responsibilities.
-- `docs/decisions/` records architecture decisions, including the distinction between public distribution and private workflow data.
-- `docs/manual-acceptance.md` owns the small, human-run workflow acceptance checklist.
-- `docs/bootstrap.md` and `scripts/agent-os.mjs` own project-external Sidecar activation, canonical worktree, shared-Git, and effective-Hooks isolation, pre-commit transactional rollback, post-commit cleanup warnings, and zero-mutation checks.
-- A target repository owns its code, domain language, business rules, schemas, API contracts, framework conventions, specifications, verification commands, and local `AGENTS.md` guidance.
-- Linear owns private task state and completion evidence. GitHub owns implementation history.
+- `docs/architecture.md` records current system boundaries and lifecycle.
+- `docs/decisions/` records hard-to-reverse workflow decisions.
+- `docs/manual-acceptance.md` owns the human-run acceptance checklist.
+- `docs/bootstrap.md` and `scripts/agent-os.mjs` own project-external activation and handbook initialization.
+- A target repository owns its code, domain language, business rules, schemas, API contracts, specifications, verification commands, and local `AGENTS.md` guidance.
 
 ## Working rules
 
-- Read the approved Linear task first, then the applicable GitHub issue and repository guidance.
-- Keep task linkage one-way: Linear may point to GitHub; GitHub must not contain private Linear task identifiers, URLs, or checkpoints.
-- Use `feat/issue-<github-number>-<slug>` or `fix/issue-<github-number>-<slug>` unless a target repository defines a more specific convention.
-- Default to one GitHub issue per branch; get user approval before combining multiple issues.
-- Use scope-first imperative commit and pull-request titles.
-- Use `gh` as the primary GitHub interface.
-- Never commit credentials, OAuth state, environment files, or invented connector identifiers.
-- Keep ordinary staging integration enabled and fast. Add release gates only for a concrete risk, an existing repository requirement, or an explicit user request.
-- Treat project handbooks as durable target-repository state: initialize them explicitly, compile normative intent and boundary contracts into implementation evidence, and update affected documents with code and tests. Keep shared task state in the GitHub issue or pull request and private recovery state outside tracked project files.
-- For non-trivial work, create the approved GitHub issue and issue branch before changing project documents. Issue approval authorizes semantically equivalent handbook compilation, deterministic validation without TDD, and automatic commit and push as the first commit unique to the branch; record that baseline commit on the issue before executable implementation. Do not request a second full-document review. Stop only for a material semantic delta, ask one focused question, update the issue and owning normative source when intent changes, then persist automatically after resolution. Use ADRs for applicable durable trade-offs and architecture documents for resulting current structure.
-- A successful documentation or phase checkpoint preserves recovery evidence but does not pause, complete, or narrow the approved task. When safe authorized local work remains, continue immediately into the next action; after the documentation baseline, enter Red. Commit, push, issue comment, phase completion, and a clean worktree are not stop conditions. Stop only for a material semantic delta, concrete blocker, required external wait, completed/documentation-only scope, explicit user pause, or repository-required manual gate.
-- Apply the design Skill before implementing changes to domain language, invariants, module boundaries, public interfaces, persistent data, or architecture. Keep reusable judgment in the plugin and concrete project truth in the target repository.
+- Treat the user's current request and the closest target-repository instructions as scope. Do not require Linear or a GitHub issue.
+- Use an existing issue when one is supplied. Create a new issue only when explicitly requested or required by repository policy.
+- Follow repository branch conventions. When isolation is useful and none exists, prefer `feat/<slug>` or `fix/<slug>`.
+- Use scope-first imperative commit and pull-request titles when no closer convention applies.
+- Never commit credentials, OAuth state, environment files, private task metadata, or copied production data.
+- Ordinary fixes, localized features, and internal refactors do not require a pre-implementation documentation baseline.
+- Before a major change, document affected public contracts, durable data, authorization, cross-system responsibilities, or hard-to-reverse architecture in the owning repository document. A separate documentation checkpoint is optional and exists only for useful shared review, recovery, or repository policy.
+- Update durable documentation with code when observable behavior, interfaces, schemas, persistence, provider use, release controls, responsibilities, data flow, or directory shape changes. Avoid documentation churn for implementation-only details.
+- Use meaningful Red-Green-Refactor checks when practical and select the smallest verification sufficient for demonstrated risk.
+- Do not run automated Codex review unless the user explicitly requests code review.
+- Checkpoint only at a coherent phase when interruption, environment replacement, or external waiting creates real recovery risk. A checkpoint does not pause authorized work.
+- Apply the design Skill before changes to domain language, invariants, module boundaries, public interfaces, persistent data, authorization, or architecture.
+- Keep staging fast and use it only when deployed evidence is relevant. Preserve explicit authority for merge, production exposure, destructive actions, access-control changes, and external communication.
 
 ## Verification
 
-Run all checks before committing:
+Run the checks relevant to the changed surface. Before a plugin release, run:
 
 ```bash
 python3 scripts/verify_privacy.py
@@ -43,6 +44,4 @@ node scripts/test_handbook.mjs
 git diff --check
 ```
 
-Run the official Skill and Plugin validators from their discovered locations, and require the repository's GitGuardian check. Do not hardcode a user-home path into portable repository automation.
-
-Run `codex exec review --uncommitted` before the implementation commit and fix only material findings. Update this map and `docs/architecture.md` when directory responsibilities, workflow boundaries, or external-system ownership changes.
+Run official Skill and Plugin validators from their discovered locations. Update this map and `docs/architecture.md` when workflow boundaries or directory responsibilities change.
