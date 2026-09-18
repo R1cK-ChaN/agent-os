@@ -1,9 +1,9 @@
 # ADR 0004: Checkpoints do not pause authorized work
 
-- Status: Accepted
+- Status: Superseded in part by ADR 0006
 - Date: 2026-07-30
 - Issue: #18
-- Related: ADR 0002, ADR 0003
+- Related: ADR 0002, ADR 0003, ADR 0006
 
 ## Context
 

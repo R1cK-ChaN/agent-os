@@ -1,15 +1,15 @@
 {
   "name": "agent-os",
-  "version": "0.1.2+codex.20260806085833",
-  "description": "Personal, secret-safe sidecar activation, project handbooks, workspace recovery, checkpointing, software design, and risk-scaled delivery workflows.",
+  "version": "0.1.2+codex.20260918091207",
+  "description": "Risk-scaled software delivery, major-change documentation, workspace recovery, checkpointing, and software design workflows.",
   "author": {
     "name": "Agent OS"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent OS",
-    "shortDescription": "Design and deliver personal software workflows safely.",
-    "longDescription": "Activate personal Skills outside target repositories, initialize and maintain repository-owned project handbooks, recover secret-safe workspace readiness from durable remote state, persist coherent checkpoints across replaceable environments, design from repository-owned facts, and scale verification with demonstrated risk.",
+    "shortDescription": "Deliver software with process proportional to risk.",
+    "longDescription": "Apply a lightweight default to ordinary changes, document major semantic and architectural changes before implementation, recover replaceable workspaces safely, preserve coherent checkpoints, and verify according to demonstrated risk.",
     "developerName": "Agent OS",
     "category": "Productivity",
     "capabilities": [
@@ -17,14 +17,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Complete this private Linear issue through its linked GitHub repository.",
-      "Resume this private task from its latest GitHub checkpoint.",
-      "Activate Agent OS Skills outside this target repository without changing its Git state.",
-      "Initialize or maintain this repository's shared project handbook.",
-      "Assess this fresh development workspace and identify its safe recovery entry point.",
-      "Checkpoint this coherent development phase before the environment is replaced.",
-      "Choose the smallest sufficient verification for this change without exposing workspace secrets.",
-      "Design this software change before implementation using repository-owned project facts."
+      "Implement this repository change with proportionate verification.",
+      "Design and document this major software change before implementation.",
+      "Checkpoint this coherent phase before the environment is replaced."
     ]
   }
 }

@@ -10,9 +10,7 @@ Classify the complete candidate state, not individual files:
 
 A failed verification does not automatically make work inconsistent. It may be `recoverable-only` when the failure is reproducible, scoped, non-destructive, and clearly recorded. A passing test does not make unrelated or privacy-unsafe work reviewable.
 
-Default to one GitHub issue per branch. Combine multiple issues only after the user agrees and when each included slice remains independently explainable.
-
-Before choosing a state, check normal behavior, partial failure, dirty generated files, missing tests, documentation drift, private metadata, secret exposure, and whether a fresh environment can identify the exact next action from remote state alone. Confirm that the owning GitHub issue or pull request records shared progress and the exact resume condition; keep session-local recovery details private and outside tracked target-repository files.
+Before choosing a state, check normal behavior, partial failure, dirty generated files, missing tests, documentation drift, private metadata, secret exposure, and whether a fresh environment can identify the exact next action from durable state alone. When an existing pull request or task record already owns shared progress, update it with the exact resume condition. Otherwise the pushed branch and commit message may be sufficient; do not create an issue solely for checkpoint bookkeeping. Keep session-local recovery details private and outside tracked target-repository files.
 
 Checkpoint classification controls what may be persisted and how it is
 described; it does not decide whether the task pauses. After persistence,

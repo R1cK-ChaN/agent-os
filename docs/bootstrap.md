@@ -13,11 +13,11 @@ node /tmp/agent-os/scripts/agent-os.mjs bootstrap --target /absolute/project/pat
 
 Pin a release tag or reviewed commit for routine use. Do not silently execute an unreviewed moving `main` branch.
 
-After activation, start a new Codex task so Skill discovery runs again, then provide the target repository and optional task identifier:
+After activation, start a new Codex task so Skill discovery runs again, then provide the target repository and any optional branch or pull request:
 
 ```text
-Use prepare-development-workspace to recover owner/repository and task TEAM-123.
-Verify durable GitHub and task state, report missing authorization, and identify the safe next entry point.
+Use prepare-development-workspace to assess this repository and recover the supplied branch or pull request.
+Verify durable Git state, report missing authorization, and identify the safe next entry point.
 ```
 
 To explicitly create the project-owned working handbook after activation, run:
@@ -35,7 +35,7 @@ Bootstrap writes only to the user Skill directory. It snapshots the target repos
 
 The Skill transaction commits after the final repository snapshot passes. Temporary-backup cleanup happens afterward; a cleanup failure retains the backup and returns a warning, but never deletes the newly activated Skills or attempts an unsafe second rollback.
 
-The CLI stores no installation ledger, repository remote, credential, recovery handoff, or project report. GitHub and the approved task tracker remain the durable sources of truth. ChatGPT connector authorization remains separate from anonymous Agent OS source acquisition.
+The CLI stores no installation ledger, repository remote, credential, recovery handoff, or project report. The target repository and its established delivery systems remain the durable sources of truth. Connector authorization remains separate from anonymous Agent OS source acquisition.
 
 ## Commands
 

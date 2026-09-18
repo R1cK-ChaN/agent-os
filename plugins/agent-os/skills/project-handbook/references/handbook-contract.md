@@ -7,114 +7,50 @@ The project handbook is a small, repository-owned working set, not a document wa
 | `README.md` | Project entry point and first commands | The project entry path or stable setup changes |
 | `AGENTS.md` | Collaboration rules and local constraints | Repository workflow or ownership rules change |
 | `docs/INDEX.md` | Document routing and fact precedence | The handbook shape or source ordering changes |
-| `docs/REQUIREMENTS.md` | Numbered requirements | Required behavior changes |
+| `docs/REQUIREMENTS.md` | Stable observable requirements | Required behavior changes |
 | `docs/ARCHITECTURE.md` | Current system boundaries and responsibilities | Architecture or data flow changes |
 | `docs/INTERFACES.md` | Cross-module and provider contracts | A boundary, schema, error, or compatibility rule changes |
 | `docs/decisions/` | Append-only decision history | A surprising, hard-to-reverse trade-off is accepted |
 | `docs/runbooks/` | Operational procedures | An operator-facing procedure changes |
-| `docs/references/` | Curated external or supporting references | A durable reference is needed by the project |
+| `docs/references/` | Curated supporting references | A durable reference is needed by the project |
 
-When a project already uses equivalent paths or generated contracts, preserve them and link them from `docs/INDEX.md` instead of creating duplicate sources of truth.
+Preserve equivalent existing paths and link them from the document map instead of creating duplicate sources of truth.
 
-## Documentation compilation contract
+## Semantic roles
 
-Treat the handbook as the repository's semantic source set, not as a prose mirror of the code:
+- **Normative intent** states what the system should do and why. Accepted requirements and ADRs own it.
+- **Boundary contracts** state observable rules between modules, users, and providers. Human-readable interfaces link to owning schemas, types, or specifications.
+- **Implementation evidence** shows what the artifact currently does. Code, automated tests, static checks, and recorded manual checks provide evidence; generated prose does not.
 
-- **Normative intent** states what the system should do and why. Accepted requirements and ADRs own this intent.
-- **Boundary contracts** state the observable rules between modules, users, and providers. Human-readable interfaces link to the owning schemas, types, or specifications when they exist.
-- **Implementation evidence** shows what the current artifact does and whether it satisfies the intent. Code, automated tests, static checks, and recorded manual checks provide evidence; generation by an Agent is not evidence by itself.
+An implementation-ready requirement should be observable or constraining, name applicable boundaries, and have a falsifiable automated or manual verification path. Traceability is a routing and coverage signal, not proof of correctness.
 
-An accepted requirement that is ready for implementation has a stable identifier, one atomic and externally observable behavior or constraint, applicable interface or boundary references, and a falsifiable verification path. When automation would not be meaningful, name a concrete manual check instead of claiming implicit coverage. Trace requirements to verification and owning implementation boundaries; do not require line-level requirement comments that become stale during refactoring.
+## Risk-scaled documentation
 
-Each non-trivial implementation slice records:
+Do not require pre-implementation documentation for ordinary fixes, localized features, or internal refactors. Update durable documents alongside code only when system meaning changes.
 
-1. the normative inputs it intends to compile, including applicable requirement, interface, and ADR identifiers;
-2. the implementation outputs or boundaries it may change; and
-3. the verification evidence that can disprove conformance.
+Document a major change before executable implementation when it changes canonical terms or invariants; public interfaces, protocols, compatibility, or failure behavior; durable schemas, migrations, data ownership, authorization, or privacy; cross-system responsibilities or data flow; external integration or release behavior; or a hard-to-reverse architecture choice.
 
-Traceability is a routing and coverage signal, not proof of semantic correctness. Repository tests and review must still challenge whether the output implements the intended behavior.
+For a major change:
 
-## Pre-implementation documentation baseline
+1. Identify the normative inputs and affected boundaries.
+2. Update only the owning requirements, interfaces, architecture sections, or ADRs.
+3. Name verification capable of disproving conformance.
+4. Resolve material semantic gaps before code.
+5. Continue into implementation once the design is coherent and authorized.
 
-For non-trivial work under the default Agent OS lifecycle, create the approved
-implementation issue and its issue-scoped branch before changing project
-documents. Then compile the approved discussion, issue, and applicable design
-decisions into the repository's owning normative documents:
+The documentation-first step does not require an issue, a numbered branch, or a separate first commit. A separate documentation checkpoint is useful when another person needs to review the design, the work spans replaceable environments, or repository policy requires it. Otherwise documentation and implementation may be delivered together.
 
-- update requirements when required behavior changes;
-- update interfaces or their owning specifications when a boundary changes;
-- update architecture when current responsibilities or data flow change;
-- add an ADR when a durable, surprising, or hard-to-reverse decision has a real
-  trade-off whose rationale must survive the current structure.
+Faithful elaboration of already approved intent needs no second approval. A **material semantic delta** is new meaning that changes product behavior, scope, authorization, privacy, protocol, observable failure behavior, data ownership, public compatibility, provider choice, or a hard-to-reverse trade-off. When repository evidence cannot resolve such a delta, ask one focused question before implementation.
 
-Record shared task progress, blockers, verification, and the next observable
-step on the owning GitHub issue or pull request. Keep session-local recovery
-context in a private checkpoint outside tracked target-repository files.
+TDD verifies implementation; it does not authorize unresolved product or architecture intent. Conversely, prose scaffolding does not need an artificial failing executable test. Validate documentation with the narrowest applicable structure, reference, privacy, formatting, and repository checks.
 
-Use equivalent repository-owned documents when the project already has them.
-Do not create duplicate handbook files merely to satisfy the default paths.
+## Resolving drift
 
-Issue approval authorizes the Agent to compile, validate, commit, push, and
-checkpoint a semantically equivalent documentation-only baseline. Compare the
-compiled baseline with the approved issue and repository evidence; faithful
-elaboration, identifiers, formatting, routing, and traceability that do not
-change approved meaning require no second approval.
+When intent, contracts, code, or evidence disagree, preserve the conflict and classify it before editing:
 
-Without a second full-document review, run the narrowest applicable
-document-structure, reference, traceability, privacy, formatting, and repository
-checks. Red-Green-Refactor does not apply to this documentation-only baseline
-because it changes no executable behavior. Commit it as the first commit unique
-to the issue branch, push it, and record the baseline commit on the owning
-GitHub issue before executable implementation. The baseline must identify the
-normative inputs, intended implementation outputs or owning boundaries, and
-verification evidence for the planned implementation.
+- **Specification defect:** the normative intent is wrong, missing, or ambiguous.
+- **Implementation defect:** the intent and boundary are clear, but behavior does not conform.
+- **Verification defect:** the intended behavior is clear, but evidence cannot detect a known failure.
+- **Unrecorded intent change:** stakeholders want behavior that no accepted source authorizes.
 
-A **material semantic delta** is new meaning not authorized by the approved
-issue or repository evidence, including new product behavior or scope, a
-provider or dependency, authorization or privacy behavior, a protocol or
-observable failure rule, persistent-data ownership, a public compatibility
-constraint, or a durable architectural trade-off. When a material semantic
-delta cannot be resolved from approved evidence, stop before committing and ask
-one concrete question about only that delta.
-
-If the answer changes intent or scope, update the owning issue and normative
-document before persistence. After the delta is resolved and no other material
-delta remains, persist the completed baseline automatically without another
-full-document review.
-
-An unresolved invariant, protocol, architecture choice, or observable failure
-behavior must not be deferred to Red-Green-Refactor. TDD verifies the compiled
-implementation; it does not authorize missing product or architecture intent.
-During implementation, update an accepted intent change in its owning normative
-document before making the corresponding implementation change. Do not let code
-become the first durable source of intentional behavior.
-
-Architecture and ADRs are complementary: architecture describes the current
-system structure, while an applicable ADR preserves why a consequential choice
-was made, which alternatives were considered, and what consequences or
-compatibility constraints follow. Do not create an ADR for routine details that
-lack a durable trade-off.
-
-## Continue after the baseline
-
-The pushed and recorded documentation baseline is a recovery checkpoint, not a
-pause or completion condition. When the approved issue includes executable
-implementation and no permitted stop condition applies, continue directly into
-Red. The next observable action is the smallest failing implementation test or
-deterministic Red check, not a message announcing that implementation will
-begin later.
-
-Do not ask the user to say “continue” merely because the baseline was committed,
-pushed, recorded, or left a clean worktree. Use the checkpoint-development
-contract for the narrow stop conditions and external-wait resume evidence.
-
-## Resolving compilation drift
-
-When intent, contracts, code, or evidence disagree, preserve the observed conflict and classify it before editing:
-
-- **Specification defect:** the normative intent is wrong, missing, or ambiguous. Correct the source decision first, then its evidence and implementation.
-- **Implementation defect:** the intent and boundary are clear, but the compiled behavior does not conform. Keep the source stable, add or retain a failing check, and repair the implementation.
-- **Verification defect:** the intended behavior is clear, but the evidence cannot detect a known non-conforming result. Strengthen the check before or with the implementation repair.
-- **Unrecorded intent change:** stakeholders now want behavior that no accepted source authorizes. Record and approve the changed intent before compiling it.
-
-Do not update documentation merely to describe an accidental implementation, and do not change correct normative text during an implementation-only repair. Resolve the owning layer and update every affected view in the same branch.
+Correct the owning layer. Do not update documentation merely to describe accidental behavior, and do not change correct normative text during an implementation-only repair.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deliver Software Change"
+  short_description: "Implement changes with risk-scaled process"
+  default_prompt: "Use $deliver-software-change to implement this repository change with proportionate verification."

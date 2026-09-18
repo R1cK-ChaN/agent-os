@@ -1,127 +1,83 @@
 # Agent OS architecture
 
-Agent OS is a personal control-plane plugin for rebuilding a consistent development workflow in replaceable Codex environments. It stores reusable method and orchestration while durable external systems store project facts and execution state.
+Agent OS is a personal control-plane plugin for applying proportionate software-development workflows in replaceable Codex environments. It stores reusable method; target repositories store project truth and implementation history.
 
 ## System boundaries
 
 | Concern | Source of truth |
 | --- | --- |
-| Cross-project delivery and design method, privacy, and authority | Agent OS plugin |
-| Project normative intent, boundary contracts, architecture, and decisions | Target repository project handbook |
-| Shared task scope, progress, blockers, verification, and resume conditions | GitHub issue or pull request |
-| Session-local recovery context | Private, untracked checkpoint outside the target repository |
-| Private task, decisions, blockers, and completion evidence | Linear |
-| Code, domain language, business rules, schemas, API contracts, specifications, repository rules, commits, and pull requests | GitHub repository |
+| Cross-project delivery, design, privacy, authority, and verification method | Agent OS plugin |
+| Project intent, boundary contracts, architecture, and decisions | Target repository documentation |
+| Requested scope | Current user instruction and any repository-owned task the user supplies |
+| Code, schemas, tests, repository rules, commits, and pull requests | Target Git repository |
+| Session-local recovery context | Private, untracked state outside the target repository |
 | Authorized external actions | Connector, MCP, or provider CLI |
 | Runtime data, deployment, and secrets | Cloud provider |
-| Temporary editing and verification | Codex environment |
 
 ```mermaid
 flowchart LR
-    L[Private Linear task] --> O[Agent OS workflow]
-    O --> D[Portable design method]
-    D --> G[GitHub repository work]
-    G --> P[Merged pull request]
-    P --> L
-    R[Repository AGENTS.md and specs] --> O
-    H[Repository project handbook] --> O
-    C[Authorized connectors and cloud providers] <--> O
+    U[User request] --> O[Agent OS risk classification]
+    R[Repository rules and contracts] --> O
+    O --> L[Lightweight ordinary change]
+    O --> M[Major change design and documentation]
+    L --> G[Implementation and verification]
+    M --> G
+    G --> D[Repository delivery workflow]
 ```
 
-The return edge writes the merged pull-request link and observed evidence to Linear. No edge writes private Linear task metadata to GitHub.
+## Risk-scaled lifecycle
 
-## Delivery lifecycle
+1. Start from the user's request and target repository; use an existing task or pull request only when supplied.
+2. Prepare or recover the workspace from repository instructions and durable Git state when the environment is fresh or resumed.
+3. Classify the change as ordinary or major based on semantics and risk, not file count.
+4. For ordinary changes, implement directly with meaningful targeted checks. Do not require an issue or pre-implementation documentation baseline.
+5. For major changes, design and document changed contracts, persistence, authorization, responsibilities, or hard-to-reverse choices before executable implementation when the repository has an owning document.
+6. Use a separate documentation checkpoint only when shared review, long-running recovery, or repository policy makes it useful. It does not require an issue and is not always the first unique commit.
+7. Implement in coherent slices and select verification from targeted checks through integration, full suite, or staging only as demonstrated risk grows.
+8. Update durable documentation with code when system meaning changes.
+9. Checkpoint before material interruption risk; use remote Git as the recovery anchor without creating bookkeeping artifacts for their own sake.
+10. Deliver through the repository's normal branch, commit, push, pull-request, and release workflow as required by the requested outcome.
+11. Preserve explicit authority for merge, production exposure, destructive operations, access control, and external communication.
 
-1. Start from a Linear issue.
-2. Resolve the linked GitHub repository and reuse or create the privacy-safe GitHub issue required for non-trivial work.
-3. Prepare the development workspace by recovering durable remote state, reading repository-local instructions and the project handbook when present, protecting secret and environment boundaries, discovering required capabilities, and producing an ephemeral Workspace Readiness result.
-4. Create an issue-scoped GitHub branch without private task metadata.
-5. Apply portable design judgment when the change affects domain language, invariants, boundaries, persistence, interfaces, or architecture.
-6. Compile the approved intent into the target repository's owning requirements, interfaces, architecture, and decisions. Use an ADR for applicable durable trade-offs so the repository preserves why the resulting architecture was chosen. Keep shared execution state in the GitHub issue or pull request and session-local recovery context outside tracked project files.
-7. Compare the documentation baseline with the approved issue and repository evidence. Issue approval authorizes automatic validation, commit, push, and checkpoint of a semantically equivalent prose-only baseline without TDD or a second full-document review. If compilation reveals a material semantic delta, stop before commit and ask one focused question; update the issue and owning normative source when intent changes, then persist automatically after resolution. [ADR 0003](decisions/0003-approve-semantic-deltas.md) owns this approval boundary.
-8. Treat the persisted documentation baseline as a recovery checkpoint, not a pause or completion condition. When implementation remains in scope and no concrete stop condition exists, continue immediately into the smallest failing test or deterministic Red check. Later checkpoints likewise continue into the next safe, authorized, locally executable action. [ADR 0004](decisions/0004-checkpoints-do-not-pause-work.md) owns checkpoint continuation.
-9. For a non-trivial implementation slice, identify the normative requirements, interfaces, and decisions being compiled, the implementation outputs or owning boundaries, and the verification evidence that can falsify conformance. When accepted intent changes, update its owning normative document before code.
-10. Implement Red-Green-Refactor-Verify slices, selecting the smallest sufficient evidence from targeted static checks through affected-module, integration, full-suite, or staging validation as demonstrated risk grows.
-11. At coherent phase boundaries or before interruption risk, form a reviewable or recoverable-only checkpoint; never present inconsistent local state as delivered and do not stop merely because the checkpoint succeeded.
-12. Review, commit, push, and open a GitHub pull request with scope-first naming.
-13. Wait for required checks and merge authority.
-14. After merge, when the repository has an established staging environment, the change affects its runtime, and the repository workflow pre-authorizes staging deployment, deploy with the enabled path and run the smallest representative smoke. Otherwise request approval only when staging validation is actually required; add a gate only for a concrete recorded risk.
-15. Record the merge and any applicable staging evidence without inferring production exposure, then write the pull request, commit, verification, risk, and follow-up to Linear. Do not block completion on unrelated or optional staging proof.
-16. Mark the Linear issue complete after durable merge evidence and the task's required acceptance checks are saved.
+## Major-change threshold
+
+A change is major when it modifies canonical domain language or invariants; public API, event, protocol, compatibility, or failure semantics; durable schema, migration, data ownership, authorization, or privacy; cross-module or cross-service responsibilities; external integration or release behavior; or a hard-to-reverse dependency or architecture choice.
+
+Multi-file size alone does not make a change major. Ordinary bugs, localized features, and internal refactors remain lightweight unless they cross one of those semantic boundaries.
 
 ## Sidecar bootstrap
 
-Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory, resolves the target worktree, worktree-specific Git directory, shared Git common directory, and Git's effective Hooks directory to reject symlink, linked-worktree, and external `core.hooksPath` escapes, and compares target HEAD, branch, index, worktree status, shared and worktree-local Git configuration, and the effective Hooks directory before and after activation. Bootstrap rolls back the Skill transaction if validation fails before commit. Once the final Git snapshot passes, backup cleanup is best-effort: failures retain the backup and return a warning without triggering a second rollback. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
+Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory and verifies that activation does not mutate the target worktree or Git internals. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
 
-The Git repository is intentionally public under [ADR 0001](decisions/0001-public-distribution.md) and is the acquisition source. After activation, a new task runs `prepare-development-workspace` with the target repository and optional task identifier, then independently verifies GitHub, Linear, and other durable state. Successful activation is not proof of project readiness.
-
-Project handbook initialization is a separate, explicit target-repository action. `init-handbook` may create missing starter documents, but it never runs as part of read-only Sidecar bootstrap and never overwrites existing project documents.
+Project handbook initialization is a separate explicit action. `init-handbook` creates missing starter documents without overwriting existing project files. A missing handbook is not a readiness failure and does not authorize automatic adoption.
 
 ## Recovery protocol
 
-A fresh environment resumes from the Linear issue, then follows its GitHub links to the pull request, remote branch, and repository. The GitHub issue or pull request owns shared execution state and the exact resume condition; a private checkpoint may supplement session-local recovery without becoming project truth. The workspace preparation Skill classifies required runtimes, commands, tools, services, and authorization as available, unavailable, requires authorization, or unknown, then names the safe recovery entry point. Remote Git state overrides stale private checkpoints. Uncommitted local work, readiness reports, and previous chat history are disposable and must not be required for recovery.
+Resume from the target repository, remote branch, existing pull request when present, and latest durable commit. Load only task-relevant repository instructions and documents. Remote Git state overrides stale local assumptions. Do not require chat history, a task tracker, or a tracked mutable handoff file for recovery.
 
 ## Repository shape
 
 ```text
 .agents/plugins/marketplace.json                  Repository marketplace
 plugins/agent-os/.codex-plugin/plugin.json        Installable plugin manifest
-plugins/agent-os/skills/execute-linear-issue/     End-to-end orchestration skill
-  agents/openai.yaml                              Skill discovery metadata
-  references/authority-policy.md                  Approval and safety boundary
-  references/completion-checkpoint.md             Post-merge Linear evidence
-  references/database-change.md                   Conditional compatibility policy
-  references/engineering-quality.md               TDD, abstraction, and review policy
-  references/github-privacy.md                    One-way privacy contract
-  references/implementation-lifecycle.md          GitHub delivery protocol
-  references/issue-contract.md                    Scope authority and projection
-  references/living-map.md                        Code and documentation synchronization
-  references/release-safety.md                    Fast staging and production exposure
-  references/verification-strategy.md             Risk-scaled verification ladder
-plugins/agent-os/skills/design-software-change/   Cross-project software design skill
-  agents/openai.yaml                              Skill discovery metadata
-  references/design-precedence.md                 Plugin method and project-truth boundary
-  references/deep-modules.md                      Module depth and complexity containment
-  references/naming-and-types.md                   Semantic naming and type guidance
-  references/domain-modeling.md                    Domain language, invariants, and ownership
-  references/database-design.md                    Durable data-model design
-  references/api-design.md                         Callable-boundary and contract design
-plugins/agent-os/skills/prepare-development-workspace/ Evidence-based workspace readiness skill
-  agents/openai.yaml                              Skill discovery metadata
-  references/capability-discovery.md              Runtime, command, tool, and service evidence
-  references/workspace-readiness.md               Concise readiness result contract
-  references/workspace-security.md                VM secret, logging, and credential isolation
-plugins/agent-os/skills/checkpoint-development-work/ Coherent checkpoint skill
-  agents/openai.yaml                              Skill discovery metadata
-  references/checkpoint-consistency.md            Reviewable and recoverable state rules
-  references/checkpoint-record.md                 Durable pause and resume evidence
-plugins/agent-os/skills/project-handbook/         Project handbook contract and templates
-  agents/openai.yaml                              Skill discovery metadata
-  references/handbook-contract.md                 Document ownership, compilation, drift, and update contract
-  templates/                                      Safe starter documents for target repositories
-scripts/agent-os.mjs                              External bootstrap, handbook initialization, and doctor CLI
-scripts/test_bootstrap.mjs                         Deterministic zero-pollution and lifecycle checks
-scripts/test_handbook.mjs                           Project handbook initialization checks
+plugins/agent-os/skills/deliver-software-change/  Risk-scaled implementation workflow
+plugins/agent-os/skills/design-software-change/   Domain, module, data, and API design
+plugins/agent-os/skills/prepare-development-workspace/ Read-only readiness and recovery
+plugins/agent-os/skills/checkpoint-development-work/ Coherent interruption checkpoints
+plugins/agent-os/skills/project-handbook/         Optional durable documentation workflow
+scripts/agent-os.mjs                              Bootstrap, handbook initialization, and doctor CLI
+scripts/test_bootstrap.mjs                         Zero-pollution lifecycle tests
+scripts/test_handbook.mjs                          Handbook initialization and policy tests
 scripts/verify_privacy.py                          Private metadata and credential-artifact scan
-docs/bootstrap.md                                  Sidecar bootstrap usage and trust boundary
-docs/decisions/0001-public-distribution.md          Public distribution and private-data decision
-docs/decisions/0002-documentation-baseline-before-implementation.md Documentation-first delivery decision
-docs/decisions/0003-approve-semantic-deltas.md       Semantic-delta approval decision
-docs/decisions/0004-checkpoints-do-not-pause-work.md Checkpoint-continuation decision
-docs/decisions/0005-keep-execution-handoffs-out-of-tracked-project-docs.md Tracked-handoff ownership decision
-docs/manual-acceptance.md                         Human-run workflow acceptance checklist
+docs/bootstrap.md                                  Sidecar usage and trust boundary
+docs/decisions/                                    Append-only workflow rationale
+docs/manual-acceptance.md                          Human-run acceptance checklist
 ```
-
-Provider-specific skills, custom MCP servers, apps, hooks, and automations are intentionally absent. Add them only after a concrete repeated use case establishes their contract and verification path. The project handbook is deliberately repository-owned rather than a provider-specific storage layer. Its documentation compilation contract treats accepted requirements and decisions as normative intent, interfaces and schemas as boundary contracts, and code plus checks as implementation evidence. For non-trivial work, the approved documentation baseline is the first commit unique to the issue branch and a required durable checkpoint before executable implementation. [ADR 0002](decisions/0002-documentation-baseline-before-implementation.md) records why this ordering preserves both current structure and decision rationale. Traceability routes review and exposes missing coverage; it does not prove that Agent-generated output is semantically correct.
 
 ## Installation model
 
-The intentionally public Git repository is the distribution source; [ADR 0001](decisions/0001-public-distribution.md) records that repository visibility is distinct from private workflow data. Users may install the Plugin through its marketplace or anonymously clone a pinned public release and run the Sidecar bootstrap to activate user-level Skills without touching a target project. After activation, an explicit `init-handbook` command may scaffold missing target-repository documents. External systems are authorized separately, and a new task is required after Skill activation so discovery runs again.
-
-OAuth sessions, tokens, cloud secrets, project code, and project-specific domain knowledge never ship inside the plugin. The plugin carries reusable design questions and decision criteria; target repositories carry the answers. Agent OS does not create or require a tracked mutable handoff file by default. A closer repository convention may explicitly retain one, but existing target repositories are never rewritten or cleaned up automatically.
+The public Git repository is the distribution source. Users may install the plugin through its marketplace or clone a reviewed release and run the Sidecar bootstrap. External systems are optional and authorized separately. OAuth sessions, tokens, cloud secrets, project code, and project-specific facts never ship inside the plugin.
 
 ## Acceptance boundary
 
-Official Skill and Plugin validators own package-format validation. GitGuardian owns secret detection. The repository adds one fast privacy scan for private task metadata and obvious credential artifacts, plus a one-page manual checklist for workspace recovery, checkpoints, privacy, authority, staging, and design precedence.
-
-Agent behavior automation is intentionally deferred. Add a focused regression only after the same failure pattern appears in at least three real project uses or when a target repository already requires it; do not build a general LLM benchmark or make nested Agent execution a normal release gate.
+Official Skill and Plugin validators own package-format validation. The repository adds bootstrap, handbook, privacy, and formatting checks. Agent behavior automation remains intentionally small; add a focused regression only after a repeated failure pattern or when an existing repository contract requires it.
