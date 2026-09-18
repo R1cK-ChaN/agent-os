@@ -1,6 +1,6 @@
 {
   "name": "agent-os",
-  "version": "0.1.2+codex.20260918091207",
+  "version": "0.1.2+codex.20260918105518",
   "description": "Risk-scaled software delivery, major-change documentation, workspace recovery, checkpointing, and software design workflows.",
   "author": {
     "name": "Agent OS"
