@@ -24,6 +24,10 @@ The documentation-first step may be a separate commit when it creates a useful s
 
 ## Naming
 
-Follow repository conventions. When an isolated branch is useful and no convention exists, use `feat/<technical-slug>` or `fix/<technical-slug>`. Use scope-first imperative commit and pull-request titles when no closer convention applies.
+Follow repository conventions. When none exists:
+
+- Title a GitHub issue as `<scope>: <concise behavior change>`. Do not repeat the repository name as a bracketed prefix unless it adds information outside that repository.
+- When an isolated branch is useful, use `feat/<technical-slug>` or `fix/<technical-slug>`.
+- Use `<scope>: <imperative summary>` for commit messages and pull-request titles.
 
 If an existing issue owns the work, link it normally. Do not create an issue only to obtain a branch number or closing keyword.

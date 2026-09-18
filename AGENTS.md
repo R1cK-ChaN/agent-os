@@ -22,7 +22,8 @@ This public repository distributes an installable, risk-scaled Agent OS workflow
 - Treat the user's current request and the closest target-repository instructions as scope. Do not require Linear or a GitHub issue.
 - Use an existing issue when one is supplied. Create a new issue only when explicitly requested or required by repository policy.
 - Follow repository branch conventions. When isolation is useful and none exists, prefer `feat/<slug>` or `fix/<slug>`.
-- Use scope-first imperative commit and pull-request titles when no closer convention applies.
+- When no closer convention applies, title GitHub issues as `<scope>: <concise behavior change>`, without a redundant repository-name prefix.
+- Use `<scope>: <imperative summary>` for commit messages and pull-request titles when no closer convention applies.
 - Never commit credentials, OAuth state, environment files, private task metadata, or copied production data.
 - Ordinary fixes, localized features, and internal refactors do not require a pre-implementation documentation baseline.
 - Before a major change, document affected public contracts, durable data, authorization, cross-system responsibilities, or hard-to-reverse architecture in the owning repository document. A separate documentation checkpoint is optional and exists only for useful shared review, recovery, or repository policy.
