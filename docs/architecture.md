@@ -1,6 +1,6 @@
 # Agent OS architecture
 
-Agent OS is a personal control-plane plugin for applying proportionate software-development workflows in replaceable Codex environments. It stores reusable method; target repositories store project truth and implementation history.
+Agent OS is a personal control-plane plugin for issue-driven pair programming with coding agents such as Codex and Claude Code, in local or replaceable cloud environments. It stores reusable method; target repositories store project truth and implementation history.
 
 ## System boundaries
 
@@ -9,6 +9,7 @@ Agent OS is a personal control-plane plugin for applying proportionate software-
 | Cross-project delivery, design, privacy, authority, and verification method | Agent OS plugin |
 | Project intent, boundary contracts, architecture, and decisions | Target repository documentation |
 | Requested scope | Current user instruction and any repository-owned task the user supplies |
+| Approved scope for autonomous delivery | The delivery issue and its comments |
 | Code, schemas, tests, repository rules, commits, and pull requests | Target Git repository |
 | Session-local recovery context | Private, untracked state outside the target repository |
 | Authorized external actions | Connector, MCP, or provider CLI |
@@ -24,6 +25,15 @@ flowchart LR
     M --> G
     G --> D[Repository delivery workflow]
 ```
+
+## Issue-driven pair programming
+
+Work moves through two phases with the issue as the only handoff:
+
+1. **Discussion.** The user and an agent settle the direction. `shape-delivery-issue` records goal, scope, non-goals, decisions, design for a major change, acceptance criteria, verification, and the delivery endpoint in a self-contained GitHub issue.
+2. **Delivery.** Any session, in the same environment, a new local worktree, or the cloud, delivers the issue with `deliver-software-change` without chat history. It opens a draft pull request linked to the issue at the first push, communicates through the issue and pull request, and by default merges after required CI checks pass.
+
+The delivering agent stops only when the issue is incomplete or a material semantic delta contradicts it. Ad-hoc ordinary changes still need no issue.
 
 ## Risk-scaled lifecycle
 
@@ -47,7 +57,7 @@ Multi-file size alone does not make a change major. Ordinary bugs, localized fea
 
 ## Sidecar bootstrap
 
-Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory and verifies that activation does not mutate the target worktree or Git internals. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
+Agent OS activation is external to target repositories. `scripts/agent-os.mjs` copies validated Skills into the user-level Codex Skill directory and verifies that activation does not mutate the target worktree or Git internals. This path serves Codex; Claude Code installs the plugin through its marketplace instead. Bootstrap never adds project files, configuration, hooks, submodules, ignore rules, state, remote URLs, or credentials.
 
 Project handbook initialization is a separate explicit action. `init-handbook` creates missing starter documents without overwriting existing project files. A missing handbook is not a readiness failure and does not authorize automatic adoption.
 
@@ -58,8 +68,11 @@ Resume from the target repository, remote branch, existing pull request when pre
 ## Repository shape
 
 ```text
-.agents/plugins/marketplace.json                  Repository marketplace
-plugins/agent-os/.codex-plugin/plugin.json        Installable plugin manifest
+.agents/plugins/marketplace.json                  Codex repository marketplace
+.claude-plugin/marketplace.json                   Claude Code repository marketplace
+plugins/agent-os/.codex-plugin/plugin.json        Codex plugin manifest
+plugins/agent-os/.claude-plugin/plugin.json       Claude Code plugin manifest
+plugins/agent-os/skills/shape-delivery-issue/     Discussion-to-issue handoff
 plugins/agent-os/skills/deliver-software-change/  Risk-scaled implementation workflow
 plugins/agent-os/skills/design-software-change/   Domain, module, data, and API design
 plugins/agent-os/skills/prepare-development-workspace/ Read-only readiness and recovery
@@ -76,7 +89,7 @@ docs/manual-acceptance.md                          Human-run acceptance checklis
 
 ## Installation model
 
-The public Git repository is the distribution source. Users may install the plugin through its marketplace or clone a reviewed release and run the Sidecar bootstrap. External systems are optional and authorized separately. OAuth sessions, tokens, cloud secrets, project code, and project-specific facts never ship inside the plugin.
+The public Git repository is the distribution source. Users may install the plugin through the Codex or Claude Code marketplace, including from a shared local checkout, or clone a reviewed release and run the Sidecar bootstrap. External systems are optional and authorized separately. OAuth sessions, tokens, cloud secrets, project code, and project-specific facts never ship inside the plugin.
 
 ## Acceptance boundary
 

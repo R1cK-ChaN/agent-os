@@ -58,6 +58,8 @@ const decisionsGuide = await readFile(join(project, "docs", "decisions", "README
 const deliverySkill = await readFile(join(ROOT, "plugins", "agent-os", "skills", "deliver-software-change", "SKILL.md"), "utf8");
 const implementationLifecycle = await readFile(join(ROOT, "plugins", "agent-os", "skills", "deliver-software-change", "references", "implementation-lifecycle.md"), "utf8");
 const engineeringQuality = await readFile(join(ROOT, "plugins", "agent-os", "skills", "deliver-software-change", "references", "engineering-quality.md"), "utf8");
+const issueDrivenDelivery = await readFile(join(ROOT, "plugins", "agent-os", "skills", "deliver-software-change", "references", "issue-driven-delivery.md"), "utf8");
+const issueContract = await readFile(join(ROOT, "plugins", "agent-os", "skills", "shape-delivery-issue", "references", "issue-contract.md"), "utf8");
 const checkpointSkill = await readFile(join(ROOT, "plugins", "agent-os", "skills", "checkpoint-development-work", "SKILL.md"), "utf8");
 const checkpointRecord = await readFile(join(ROOT, "plugins", "agent-os", "skills", "checkpoint-development-work", "references", "checkpoint-record.md"), "utf8");
 
@@ -98,11 +100,12 @@ assert.match(decisionsGuide, /architecture.*current/is);
 assert.match(deliverySkill, /Ordinary/i);
 assert.match(deliverySkill, /Major/i);
 assert.match(deliverySkill, /Do not require an issue/i);
-assert.match(deliverySkill, /Do not run automated Codex review unless/i);
+assert.doesNotMatch(deliverySkill, /Codex review/i);
+assert.match(deliverySkill, /issue-driven-delivery\.md/);
 assert.match(implementationLifecycle, /Ordinary changes/i);
 assert.match(implementationLifecycle, /Major changes/i);
 assert.match(implementationLifecycle, /do not require an issue/i);
-assert.match(engineeringQuality, /Do not run automated Codex review unless/i);
+assert.doesNotMatch(engineeringQuality, /Codex review/i);
 assert.match(checkpointSkill, /does not declare incomplete\s+work delivered/i);
 assert.match(checkpointSkill, /does not.*pause.*complete.*narrow/is);
 assert.match(checkpointSkill, /Do not trigger after every coherent phase/i);
@@ -111,6 +114,13 @@ assert.match(checkpointSkill, /external wait/i);
 assert.match(checkpointSkill, /explicit user pause/i);
 assert.match(checkpointSkill, /repository-required manual gate/i);
 assert.match(checkpointRecord, /exact resume condition/i);
+assert.match(issueContract, /## Acceptance criteria/);
+assert.match(issueContract, /## Non-goals/);
+assert.match(issueContract, /Endpoint: merge after CI/);
+assert.match(issueContract, /Nothing points to the conversation/i);
+assert.match(issueDrivenDelivery, /Closes #<number>/);
+assert.match(issueDrivenDelivery, /no CI checks.*stop at the ready pull request/is);
+assert.match(issueDrivenDelivery, /material semantic delta/i);
 
 const expectedFiles = [
   "AGENTS.md",

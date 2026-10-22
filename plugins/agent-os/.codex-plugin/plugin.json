@@ -1,7 +1,7 @@
 {
   "name": "agent-os",
-  "version": "0.1.2+codex.20260918105518",
-  "description": "Risk-scaled software delivery, major-change documentation, workspace recovery, checkpointing, and software design workflows.",
+  "version": "0.2.0+codex.20261022041629",
+  "description": "Issue-driven pair programming: shape a discussion into a self-contained issue, then deliver it autonomously with risk-scaled process, design, documentation, recovery, and checkpoint workflows.",
   "author": {
     "name": "Agent OS"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Agent OS",
     "shortDescription": "Deliver software with process proportional to risk.",
-    "longDescription": "Apply a lightweight default to ordinary changes, document major semantic and architectural changes before implementation, recover replaceable workspaces safely, preserve coherent checkpoints, and verify according to demonstrated risk.",
+    "longDescription": "Shape a settled discussion into a self-contained issue that another session can deliver, apply a lightweight default to ordinary changes, document major semantic and architectural changes before implementation, recover replaceable workspaces safely, preserve coherent checkpoints, and verify according to demonstrated risk.",
     "developerName": "Agent OS",
     "category": "Productivity",
     "capabilities": [
@@ -17,6 +17,8 @@
       "Write"
     ],
     "defaultPrompt": [
+      "Shape this discussion into an issue another session can deliver.",
+      "Deliver this issue end to end.",
       "Implement this repository change with proportionate verification.",
       "Design and document this major software change before implementation.",
       "Checkpoint this coherent phase before the environment is replaced."

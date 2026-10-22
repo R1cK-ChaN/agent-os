@@ -1,0 +1,15 @@
+{
+  "name": "agent-os",
+  "description": "Agent OS workflows for issue-driven pair programming with coding agents.",
+  "owner": {
+    "name": "Agent OS"
+  },
+  "plugins": [
+    {
+      "name": "agent-os",
+      "source": "./plugins/agent-os",
+      "description": "Issue-driven pair programming: shape a discussion into a self-contained issue, then deliver it autonomously with risk-scaled process.",
+      "category": "productivity"
+    }
+  ]
+}

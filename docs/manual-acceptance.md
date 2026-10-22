@@ -21,11 +21,22 @@ Use this checklist before a plugin release or after changing a workflow boundary
 ## Risk-scaled delivery
 
 - For an ordinary bug or localized feature, confirm implementation proceeds without Linear, a GitHub issue, or a pre-implementation documentation baseline.
-- Confirm ordinary work uses the narrowest relevant test or deterministic check and does not run automated Codex review unless explicitly requested.
+- Confirm ordinary work uses the narrowest relevant test or deterministic check.
 - For a major public API, schema, authorization, cross-service, or hard-to-reverse architecture change, confirm affected durable documents are updated before executable implementation.
 - Confirm a major-change documentation checkpoint can be separate when shared review or recovery benefits, but is not required to be the first unique branch commit.
 - Confirm unresolved material semantics cause one focused question before code, while faithful documentation of already approved intent does not require repeated approval.
 - Confirm issues, branches, commits, pushes, pull requests, and release gates are created only when requested, required by repository workflow, or necessary for the delivery outcome.
+
+## Issue-driven pair programming
+
+- Discuss a requirement with `shape-delivery-issue` and confirm the issue is created only after the direction is settled and the user confirms the draft.
+- Confirm the created issue passes the handoff check: verifiable acceptance criteria, explicit non-goals, recorded decisions with rationale, no references to the conversation, and a stated delivery endpoint.
+- Hand the issue URL to a fresh session with no chat history and confirm it delivers the issue without asking for decisions the issue already records.
+- Confirm the delivering session opens a draft pull request with `Closes #<number>` at the first push.
+- Interrupt delivery, start another fresh session with the same issue, and confirm it resumes from the linked pull request instead of restarting.
+- Confirm a contradiction between the issue and the code produces an issue comment and a stop, not a silent scope change.
+- Confirm the pull request merges only after every required CI check passes, stops at the ready pull request when the repository has no CI, and returns to the default branch afterwards except inside a managed worktree.
+- Install the plugin in both Codex and Claude Code from the shared local checkout and confirm both list the same Skills.
 
 ## Project handbook
 
