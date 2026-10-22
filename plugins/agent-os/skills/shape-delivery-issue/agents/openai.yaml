@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shape Delivery Issue"
+  short_description: "Turn a discussion into an issue an agent can deliver"
+  default_prompt: "Use $shape-delivery-issue to turn this discussion into a self-contained issue another session can deliver."

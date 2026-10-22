@@ -16,10 +16,11 @@ Use the narrowest authority needed for the current phase.
 - Open or update a pull request.
 - Update an existing issue or task record with non-sensitive implementation evidence.
 - Use an established staging deploy and smoke path when it is normal integration validation for the approved change.
+- Merge the pull request for a supplied issue after every required CI check passes, unless the issue's delivery endpoint or repository policy says to stop earlier. See [issue-driven-delivery.md](issue-driven-delivery.md).
 
 ## Require explicit authority
 
-- Merge a pull request unless the user or repository workflow already granted merge authority.
+- Merge a pull request unless the user, the repository workflow, or an issue's delivery endpoint already granted merge authority. A repository with no CI checks on the pull request never grants merge authority implicitly.
 - Deploy to production or expose behavior to production users unless an established approved release workflow already grants that authority.
 - Apply a production migration or destructive data operation.
 - Rotate or reveal credentials.

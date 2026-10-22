@@ -11,7 +11,7 @@ Record only concise, non-sensitive recovery evidence:
 - **Exact resume condition:** for an external wait, the event or observed state that permits continuation; otherwise `not applicable`.
 - **Unpersisted risk:** any intentionally local state that a replaced environment would lose.
 
-Write repository-facing evidence to the remote branch and, when one already exists, its pull request or task record. Do not create an issue only to store checkpoint prose. Keep private decisions and session-local recovery context outside tracked repository files. Do not use chat, a local note, or an unpushed commit as the only checkpoint record when the environment is replaceable.
+Write repository-facing evidence to the remote branch and, when one already exists, its pull request or task record. For issue-driven work, that is the draft pull request linked to the issue. Do not create an issue only to store checkpoint prose. Keep private decisions and session-local recovery context outside tracked repository files. Do not use chat, a local note, or an unpushed commit as the only checkpoint record when the environment is replaceable.
 
 A checkpoint record is a recovery route, not a request for the user to say
 “continue.” When the blocker is `none`, proceed to the recorded next step.

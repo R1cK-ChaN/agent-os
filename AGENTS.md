@@ -1,16 +1,18 @@
 # Agent OS repository map
 
-This public repository distributes an installable, risk-scaled Agent OS workflow for personal development. It contains reusable cross-project methods, not project-specific facts or credentials.
+This public repository distributes an installable, risk-scaled Agent OS workflow for personal, issue-driven pair programming with coding agents such as Codex and Claude Code. It contains reusable cross-project methods, not project-specific facts or credentials.
 
 ## Source of truth
 
 - `plugins/agent-os/` owns the installable plugin and reusable skills.
 - `plugins/agent-os/skills/deliver-software-change/` owns lightweight delivery, conditional documentation-first work, verification, authority, and release guidance.
+- `plugins/agent-os/skills/shape-delivery-issue/` owns turning a requirement discussion into a self-contained issue that another session can deliver.
 - `plugins/agent-os/skills/prepare-development-workspace/` owns evidence-based workspace readiness, secret safety, and durable recovery orientation.
 - `plugins/agent-os/skills/checkpoint-development-work/` owns coherent remote checkpoints before interruption risk.
 - `plugins/agent-os/skills/project-handbook/` owns the optional repository handbook, major-change documentation contract, and templates.
 - `plugins/agent-os/skills/design-software-change/` owns reusable design questions; target repositories own the answers.
-- `.agents/plugins/marketplace.json` exposes the plugin from this Git repository.
+- `.agents/plugins/marketplace.json` and `plugins/agent-os/.codex-plugin/plugin.json` expose the plugin to Codex.
+- `.claude-plugin/marketplace.json` and `plugins/agent-os/.claude-plugin/plugin.json` expose the plugin to Claude Code.
 - `docs/architecture.md` records current system boundaries and lifecycle.
 - `docs/decisions/` records hard-to-reverse workflow decisions.
 - `docs/manual-acceptance.md` owns the human-run acceptance checklist.
@@ -29,7 +31,7 @@ This public repository distributes an installable, risk-scaled Agent OS workflow
 - Before a major change, document affected public contracts, durable data, authorization, cross-system responsibilities, or hard-to-reverse architecture in the owning repository document. A separate documentation checkpoint is optional and exists only for useful shared review, recovery, or repository policy.
 - Update durable documentation with code when observable behavior, interfaces, schemas, persistence, provider use, release controls, responsibilities, data flow, or directory shape changes. Avoid documentation churn for implementation-only details.
 - Use meaningful Red-Green-Refactor checks when practical and select the smallest verification sufficient for demonstrated risk.
-- Do not run automated Codex review unless the user explicitly requests code review.
+- Settle direction with the user and record it in a self-contained issue before autonomous delivery. A delivered issue is the execution contract; its default endpoint is merge after required CI checks pass.
 - Checkpoint only at a coherent phase when interruption, environment replacement, or external waiting creates real recovery risk. A checkpoint does not pause authorized work.
 - Apply the design Skill before changes to domain language, invariants, module boundaries, public interfaces, persistent data, authorization, or architecture.
 - Keep staging fast and use it only when deployed evidence is relevant. Preserve explicit authority for merge, production exposure, destructive actions, access-control changes, and external communication.
@@ -45,4 +47,4 @@ node scripts/test_handbook.mjs
 git diff --check
 ```
 
-Run official Skill and Plugin validators from their discovered locations. Update this map and `docs/architecture.md` when workflow boundaries or directory responsibilities change.
+Run official Skill and Plugin validators from their discovered locations, including `claude plugin validate .` and `claude plugin validate plugins/agent-os` when Claude Code is available. Bump the version in both plugin manifests whenever bundled Skills or templates change. Update this map and `docs/architecture.md` when workflow boundaries or directory responsibilities change.

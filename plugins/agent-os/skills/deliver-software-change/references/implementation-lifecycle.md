@@ -10,7 +10,7 @@ Use the smallest path that delivers the requested outcome safely.
 4. **Synchronize:** Update durable documentation only when system meaning changed.
 5. **Deliver:** Inspect the diff, then commit, push, or open a pull request when requested or normally required for the outcome.
 
-Ordinary changes do not require an issue, a special branch, a documentation baseline, a separate documentation commit, or automated Codex review.
+Ordinary changes do not require an issue, a special branch, a documentation baseline, or a separate documentation commit.
 
 ## Major changes
 
@@ -31,3 +31,11 @@ Follow repository conventions. When none exists:
 - Use `<scope>: <imperative summary>` for commit messages and pull-request titles.
 
 If an existing issue owns the work, link it normally. Do not create an issue only to obtain a branch number or closing keyword.
+
+## GitHub bodies
+
+Write multiline issue and pull-request bodies to a file and pass it with `--body-file`. Read the created body back and confirm it contains real line breaks rather than literal `\n` sequences.
+
+## Issue-driven changes
+
+When the user supplies an issue to deliver, follow [issue-driven-delivery.md](issue-driven-delivery.md). The issue fixes scope, decisions, and the delivery endpoint, and the lifecycle above runs without further approval inside that contract.

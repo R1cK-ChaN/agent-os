@@ -8,7 +8,7 @@ Prefer concrete implementations before reusable abstractions. Abstract earlier o
 
 ## Verify proportionately
 
-Run relevant tests and exercise the changed path. Inspect status and the screened diff before delivery. Do not run automated Codex review unless the user explicitly requests a review task.
+Run relevant tests and exercise the changed path. Inspect status and the screened diff before delivery.
 
 Treat failed or unavailable verification honestly. Record the observed failure, residual risk, and next required evidence instead of reporting success.
 

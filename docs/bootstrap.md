@@ -1,6 +1,6 @@
 # Sidecar bootstrap
 
-Agent OS bootstrap activates personal development workflows in a replaceable Codex environment without adding Agent OS files or configuration to the target project.
+Agent OS bootstrap activates personal development workflows in a replaceable Codex environment without adding Agent OS files or configuration to the target project. Claude Code and long-lived local machines install the plugin through a marketplace instead; see [Shared local installation](#shared-local-installation).
 
 ## Fresh Work environment
 
@@ -60,5 +60,29 @@ codex plugin remove agent-os
 codex plugin add agent-os --marketplace agent-os
 codex plugin list --json
 ```
+
+## Shared local installation
+
+On a long-lived machine, Codex and Claude Code can install the plugin from one shared checkout. Keep that checkout on `main` and separate from the clone used for development, so unmerged branches never reach the installed plugin:
+
+```bash
+git clone https://github.com/R1cK-ChaN/agent-os.git ~/.local/share/agent-os
+codex plugin marketplace add ~/.local/share/agent-os
+codex plugin add agent-os --marketplace agent-os
+claude plugin marketplace add ~/.local/share/agent-os
+claude plugin install agent-os@agent-os
+```
+
+After a pull request merges, pull the shared checkout and refresh both installations. Both tools cache the plugin by version, so every change to bundled Skills or templates must bump the version in `plugins/agent-os/.codex-plugin/plugin.json` and `plugins/agent-os/.claude-plugin/plugin.json`:
+
+```bash
+git -C ~/.local/share/agent-os pull --ff-only
+codex plugin remove agent-os
+codex plugin add agent-os --marketplace agent-os
+claude plugin marketplace update agent-os
+claude plugin update agent-os@agent-os
+```
+
+Start a new task or session afterwards so Skill discovery runs again.
 
 The first release deliberately omits automatic source updates, account-level Plugin installation, persistent backups, status records, handoffs, and recursive uninstall. Update the reviewed Agent OS checkout, validate it, and rerun bootstrap to refresh managed copies.
