@@ -60,6 +60,9 @@ const implementationLifecycle = await readFile(join(ROOT, "plugins", "agent-os",
 const engineeringQuality = await readFile(join(ROOT, "plugins", "agent-os", "skills", "deliver-software-change", "references", "engineering-quality.md"), "utf8");
 const issueDrivenDelivery = await readFile(join(ROOT, "plugins", "agent-os", "skills", "deliver-software-change", "references", "issue-driven-delivery.md"), "utf8");
 const issueContract = await readFile(join(ROOT, "plugins", "agent-os", "skills", "shape-delivery-issue", "references", "issue-contract.md"), "utf8");
+const uiSkill = await readFile(join(ROOT, "plugins", "agent-os", "skills", "design-user-interface", "SKILL.md"), "utf8");
+const uiSystem = await readFile(join(ROOT, "plugins", "agent-os", "skills", "design-user-interface", "references", "ui-system.md"), "utf8");
+const uiTells = await readFile(join(ROOT, "plugins", "agent-os", "skills", "design-user-interface", "references", "ui-tells.md"), "utf8");
 const checkpointSkill = await readFile(join(ROOT, "plugins", "agent-os", "skills", "checkpoint-development-work", "SKILL.md"), "utf8");
 const checkpointRecord = await readFile(join(ROOT, "plugins", "agent-os", "skills", "checkpoint-development-work", "references", "checkpoint-record.md"), "utf8");
 
@@ -121,6 +124,13 @@ assert.match(issueContract, /Nothing points to the conversation/i);
 assert.match(issueDrivenDelivery, /Closes #<number>/);
 assert.match(issueDrivenDelivery, /no CI checks.*stop at the ready pull request/is);
 assert.match(issueDrivenDelivery, /material semantic delta/i);
+assert.match(deliverySkill, /design-user-interface/);
+assert.match(uiSkill, /repository's rules override this Skill/i);
+assert.match(uiSkill, /lint/i);
+assert.match(uiSystem, /Do not hard-code hex values/i);
+assert.match(uiSystem, /unstyled native controls/i);
+assert.match(uiTells, /Let the layout do the explaining/);
+assert.match(uiTells, /accessible names for icon-only controls/i);
 
 const expectedFiles = [
   "AGENTS.md",

@@ -75,6 +75,7 @@ plugins/agent-os/.claude-plugin/plugin.json       Claude Code plugin manifest
 plugins/agent-os/skills/shape-delivery-issue/     Discussion-to-issue handoff
 plugins/agent-os/skills/deliver-software-change/  Risk-scaled implementation workflow
 plugins/agent-os/skills/design-software-change/   Domain, module, data, and API design
+plugins/agent-os/skills/design-user-interface/    Product UI consistency and generic-pattern avoidance
 plugins/agent-os/skills/prepare-development-workspace/ Read-only readiness and recovery
 plugins/agent-os/skills/checkpoint-development-work/ Coherent interruption checkpoints
 plugins/agent-os/skills/project-handbook/         Optional durable documentation workflow

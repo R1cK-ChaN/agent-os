@@ -11,6 +11,7 @@ This public repository distributes an installable, risk-scaled Agent OS workflow
 - `plugins/agent-os/skills/checkpoint-development-work/` owns coherent remote checkpoints before interruption risk.
 - `plugins/agent-os/skills/project-handbook/` owns the optional repository handbook, major-change documentation contract, and templates.
 - `plugins/agent-os/skills/design-software-change/` owns reusable design questions; target repositories own the answers.
+- `plugins/agent-os/skills/design-user-interface/` owns product-interface consistency with the target's design system and the generic AI patterns to avoid.
 - `.agents/plugins/marketplace.json` and `plugins/agent-os/.codex-plugin/plugin.json` expose the plugin to Codex.
 - `.claude-plugin/marketplace.json` and `plugins/agent-os/.claude-plugin/plugin.json` expose the plugin to Claude Code.
 - `docs/architecture.md` records current system boundaries and lifecycle.
