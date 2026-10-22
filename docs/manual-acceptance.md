@@ -62,6 +62,14 @@ Use this checklist before a plugin release or after changing a workflow boundary
 - Confirm normal staging validation does not add production rollout machinery.
 - Confirm production deployment, production exposure, destructive actions, access-control changes, and external communication retain explicit authority boundaries.
 
+## User interface
+
+- Give `design-user-interface` a repository with a theme, tokens, and shared components, and ask for a new screen.
+- Confirm it uses existing tokens and components, with no hard-coded colors, unstyled native controls, or local copies of shared components.
+- Confirm it runs the repository's style or token lint when one exists, and renders the result in light, dark, and mobile widths when the environment allows.
+- Confirm the output avoids the patterns in `ui-tells.md` unless the repository's design calls for them.
+- In a repository without a design system, confirm it proposes a minimal token set before building.
+
 ## Design precedence
 
 - Give `design-software-change` a repository with explicit naming, schema, API, or verification conventions.

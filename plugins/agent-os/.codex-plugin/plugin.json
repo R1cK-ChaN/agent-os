@@ -1,7 +1,7 @@
 {
   "name": "agent-os",
-  "version": "0.2.0+codex.20261022041629",
-  "description": "Issue-driven pair programming: shape a discussion into a self-contained issue, then deliver it autonomously with risk-scaled process, design, documentation, recovery, and checkpoint workflows.",
+  "version": "0.3.0+codex.20261022054853",
+  "description": "Issue-driven pair programming: shape a discussion into a self-contained issue, then deliver it autonomously with risk-scaled process, software and user-interface design, documentation, recovery, and checkpoint workflows.",
   "author": {
     "name": "Agent OS"
   },

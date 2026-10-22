@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design User Interface"
+  short_description: "Build product UI that follows the design system"
+  default_prompt: "Use $design-user-interface to build this screen with the project's design system and no generic AI patterns."
